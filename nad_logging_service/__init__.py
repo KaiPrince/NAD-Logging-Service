@@ -8,6 +8,7 @@
 
 import os
 from flask import Flask
+from . import logger
 
 
 def create_app(test_config=None):
@@ -30,5 +31,8 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    # register routes
+    app.register_blueprint(logger.bp)
 
     return app
