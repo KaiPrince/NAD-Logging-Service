@@ -1,34 +1,27 @@
 # TODO File Header comment
 
 import os
-import tempfile
-
 import pytest
 from nad_logging_service import create_app
+from nad_logging_service.utils import copyfile
 
-# with open(os.path.join(os.path.dirname(__file__), "data.sql"), "rb") as f:
-#     _data_sql = f.read().decode("utf8")
+LOG_FOLDER = os.path.join(".", "tests", "logs")
 
 
 @pytest.fixture
-def app():
-    db_fd, db_path = tempfile.mkstemp()
+def app(tmp_path):
+    temp_logs_folder = tmp_path
 
-    app = create_app(
-        {
-            "TESTING": True,
-            "DATABASE": db_path,
-        }
-    )
+    # Copy files in test logs folder to temp directory
+    filesToCopy = os.listdir(LOG_FOLDER)
+    for f in filesToCopy:
+        with open(os.path.join(LOG_FOLDER, f), "rb") as src:
+            dest_file = temp_logs_folder / f
+            copyfile(src, dest_file)
 
-    # with app.app_context():
-    #     init_db()
-    #     get_db().executescript(_data_sql)
+    app = create_app({"TESTING": True, "LOG_FOLDER": temp_logs_folder})
 
     yield app
-
-    os.close(db_fd)
-    os.unlink(db_path)
 
 
 @pytest.fixture

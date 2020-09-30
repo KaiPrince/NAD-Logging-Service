@@ -1,7 +1,8 @@
 # TODO FHC
 # This is the logging service.
 
-from flask import Blueprint, request
+import os
+from flask import Blueprint, request, current_app
 
 bp = Blueprint("logger", __name__)
 
@@ -13,8 +14,18 @@ def index():
 
 @bp.route("/log", methods=["GET", "POST"])
 def log():
-    """ This is a sample view that echos posted JSON. """
+    """ This is a simple view that writes to a log file. """
     if request.method == "POST":
-        return request.json
+        json = request.json
+        logfile_name = json["filename"]
+        message = json["message"]
+
+        logfile_path = current_app.config["LOG_FOLDER"]
+        logfile = os.path.join(logfile_path, logfile_name)
+
+        with open(logfile, "w+") as f:
+            f.write(message)
+
+        return "Success!"
 
     return ""
