@@ -37,4 +37,7 @@ def create_app(test_config=None):
     # register routes
     app.register_blueprint(logger.bp)
 
+    # initialize apps
+    logger.init(app)
+
     return app
