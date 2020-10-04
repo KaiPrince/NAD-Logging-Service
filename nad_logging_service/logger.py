@@ -7,6 +7,18 @@ from flask import Blueprint, request, Flask
 
 bp = Blueprint("logger", __name__)
 
+"""
+Sample Log:
+    {
+        "message": "User could not be found.",
+        "extra": {"userId": 5, "endpoint": "/users/5"},
+        "logLevel": "ERROR",
+        "applicationName": "BingoBangoBongo",
+        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
+        "dateTime": datetime("2020-04-20"),
+    },
+"""
+
 
 def init(app: Flask):
     """ This is called during app creation to initialize the logger app. """
