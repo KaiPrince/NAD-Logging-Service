@@ -2,3 +2,4 @@ Flask
 black
 flake8
 pytest
+flask-cors

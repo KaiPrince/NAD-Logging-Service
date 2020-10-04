@@ -17,7 +17,7 @@ def log():
     """ This is a simple view that writes to a log file. """
     if request.method == "POST":
         json = request.json
-        logfile_name = json["filename"]
+        logfile_name = json["filename"] if "filename" in json else "log.log"
         message = json["message"]
 
         logfile_path = current_app.config["LOG_FOLDER"]
