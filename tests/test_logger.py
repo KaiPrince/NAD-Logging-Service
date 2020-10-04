@@ -15,13 +15,14 @@ def test_index_ok(client):
 
 
 @pytest.mark.parametrize(
-    "filename, message",
-    [("logfile.log", "This is a test."), ("test.log", "Another test.")],
+    "message",
+    ["This is a test.", "Another test."],
 )
-def test_logger_write(client, app, filename, message):
+def test_logger_write(client, app, message):
     """ Logger writes to a file. """
     # Arrange
-    data = {"filename": filename, "message": message}
+    filename = "log.log"
+    data = {"message": message}
 
     # Act
     response = client.post("/log", content_type="application/json", json=data)
@@ -31,3 +32,19 @@ def test_logger_write(client, app, filename, message):
     assert filename in os.listdir(app.config["LOG_FOLDER"])
     with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
         assert message in f.read()
+
+
+"""
+body: JSON.stringify({
+        message: 'message',
+        logLevel: '1',
+        applicationId: '0x01',
+        authToken: 'asdfsagtgrtg',
+        dateTime: new Date('2020-01-01'),
+      })
+"""
+
+
+# def test_logger_parse_options():
+#     """ """
+#     pass

@@ -2,16 +2,27 @@
 # This is the logging service.
 
 import os
-from flask import Blueprint, request, current_app, Flask
+import logging
+from flask import Blueprint, request, Flask
 
 bp = Blueprint("logger", __name__)
 
 
 def init(app: Flask):
+    """ This is called during app creation to initialize the logger app. """
+    LOG_FOLDER = app.config["LOG_FOLDER"]
 
     # Ensure Logging folder exists
-    if os.path.exists(app.config["LOG_FOLDER"]):
-        os.mkdir(app.config["LOG_FOLDER"])
+    if not os.path.exists(LOG_FOLDER):
+        os.mkdir(LOG_FOLDER)
+
+    log_file_name = "log.log"
+    log_file = os.path.join(LOG_FOLDER, log_file_name)
+
+    # Set up logger
+    logger = logging.getLogger("file_logger")
+    file_handler = logging.FileHandler(log_file)
+    logger.addHandler(file_handler)
 
 
 @bp.route("/")
@@ -25,14 +36,10 @@ def log():
     if request.method == "POST":
         json = request.json
         # TODO: change filename
-        logfile_name = json["filename"] if "filename" in json else "log.log"
         message = json["message"]
 
-        logfile_path = current_app.config["LOG_FOLDER"]
-        logfile = os.path.join(logfile_path, logfile_name)
-
-        with open(logfile, "w+") as f:
-            f.write(message)
+        logger = logging.getLogger("file_logger")  # TODO move this to config?
+        logger.error(message)
 
         return "Success!"
 

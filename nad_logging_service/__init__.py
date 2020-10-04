@@ -24,14 +24,12 @@ def create_app(test_config=None):
     # TODO: specify allowed origins
     CORS(app)  # TEMP allow all.
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        # app.config.from_pyfile("config.py", silent=True)
-        # TODO: merge config object with test_config
-        config_obj = config.Config(app)
-        app.config.from_object(config_obj)
-    else:
-        # load the test config if passed in
+    # load config
+    config_obj = config.Config(app)
+    app.config.from_object(config_obj)
+
+    if test_config is not None:
+        # merge the test config if passed in
         app.config.from_mapping(test_config)
 
     # register routes
