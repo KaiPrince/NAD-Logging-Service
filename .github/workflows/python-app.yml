@@ -12,6 +12,7 @@ on:
 defaults:
   run:
     working-directory: nad-logging-service
+    # LOL
 
 jobs:
   build:
