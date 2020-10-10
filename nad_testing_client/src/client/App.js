@@ -8,10 +8,11 @@ export default function () {
   const [results, setResults] = useState(null);
 
   const performTest = async (params) => {
-    console.log(`running test ${params}`);
+    console.log(`running test ${params.testName}`);
 
     // await sleep(3000)
-    if (params === 'realbaderror') throw new Error()
+    // Throw new error if something out of our control has happened, will stop all tests
+    // throw new Error()
 
     try {
       const result = await fetch('http://localhost:5000/log', {
@@ -19,32 +20,40 @@ export default function () {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          message: 'message',
-          logLevel: '1',
-          applicationId: '0x01',
-          authToken: 'asdfsagtgrtg',
-          dateTime: new Date('2020-01-01'),
-        })
+        body: JSON.stringify(params)
       });
 
-      return params;
+      return `success during ${params.testName} (${result.status})`;
     } catch (exception) {
-      return `error during ${params}`;
+      return `error during ${params.testName}: ${exception}`;
     }
   };
 
   const performAllTests = () => {
     Promise.all([
-      'test1',
-      'test2',
-      // 'realbaderror'
+      {
+        testName: 'test1',
+        message: 'test log 1',
+        logLevel: '1',
+        applicationId: '0x01',
+        authToken: '0x01',
+        dateTime: new Date(),
+      },
+      {
+        testName: 'test2',
+        message: 'test log 2',
+        logLevel: '2',
+        applicationId: '0x01',
+        authToken: '0x01',
+        dateTime: new Date(),
+      }
     ].map(performTest))
       .then((results) => {
         setResults(results);
         console.log(results);
       })
       .catch((err) => {
+        // An error in the client
         console.log('real bad error during test man');
       });
 
