@@ -4,15 +4,13 @@
 name: Python application
 
 on:
-  push:
-    branches: [master]
   pull_request:
+  push:
     branches: [master]
 
 defaults:
   run:
     working-directory: nad-logging-service
-    # LOL
 
 jobs:
   build:
