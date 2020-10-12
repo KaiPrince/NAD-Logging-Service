@@ -19,7 +19,7 @@ def app(tmp_path):
             dest_file = temp_logs_folder / f
             copyfile(src, dest_file)
 
-    app = create_app({"TESTING": True, "LOG_FOLDER": temp_logs_folder, "DATABASE": })
+    app = create_app({"TESTING": True, "LOG_FOLDER": temp_logs_folder})
 
     yield app
 
