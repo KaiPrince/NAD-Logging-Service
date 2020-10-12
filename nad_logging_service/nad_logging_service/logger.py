@@ -46,9 +46,11 @@ def init(app: Flask):
     # Remove default handler
     logger.removeHandler(default_handler)
 
-    # Set up logger
+    # Set up handler
     file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel("INFO")
+
+    # Set up logger
+    logger.setLevel("INFO")
     logger.addHandler(file_handler)
 
 
