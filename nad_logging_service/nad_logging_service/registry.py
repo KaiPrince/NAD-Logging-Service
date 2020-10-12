@@ -3,7 +3,7 @@
 
 from flask import Flask, Blueprint, request, make_response, abort, current_app
 from .auth import generate_token
-from .db import app_registry
+from .db import get_db
 
 bp = Blueprint("registry", __name__, url_prefix="/registry")
 
@@ -14,40 +14,40 @@ def init(app: Flask):
     pass
 
 
-@bp.route("/")
+@bp.route("/", methods=["POST", "DELETE"])
 def index():
-    return {"applications": list(app_registry.keys())}
-
-
-@bp.route("/register", methods=["POST"])
-def register():
     """ This is a simple view registers an application and produces a token. """
-    json = request.json
+    db = get_db()
 
-    if "app_name" not in json:
-        abort(400)
+    if request.method == "POST":
+        json = request.json
 
-    app_name = json["app_name"]
+        if "app_name" not in json:
+            abort(400)
 
-    register_app(app_name)
-    token = app_registry[app_name]
+        app_name = json["app_name"]
 
-    response = make_response(
-        {
-            "message": f"Application '{app_name}' registered successfully.",
-            "token": token,
-        },
-        201,
-    )
+        register_app(app_name)
+        token = db[app_name]  # TODO change when implementing DB
 
-    return response
+        response = make_response(
+            {
+                "message": f"Application '{app_name}' registered successfully.",
+                "token": token,
+            },
+            201,
+        )
+        return response
+
+    elif request.method == "DELETE":
+        return "NOT IMPLEMENTED"  # TODO
 
 
 def register_app(app_name):
     """ This function adds an application to the registry. """
 
-    # TODO Add DB
     token = generate_token()
-    app_registry[app_name] = token
+    db = get_db()
+    db[app_name] = token  # TODO change when implementing DB
 
     current_app.logger.info(f"Application '{request.json['app_name']}' registered.")

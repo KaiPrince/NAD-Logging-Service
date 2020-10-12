@@ -2,6 +2,7 @@
 import os
 import pytest
 from datetime import datetime
+from nad_logging_service.db import get_db
 
 sample_logs = [
     {
@@ -75,7 +76,7 @@ def test_register_application(client, app, application_name):
 
     # Act
     response = client.post(
-        "/registry/register",
+        "/registry/",
         content_type="application/json",
         json={"app_name": application_name},
     )
@@ -85,8 +86,8 @@ def test_register_application(client, app, application_name):
 
     assert "token" in response.json
 
-    applications = client.get("/registry/").json["applications"]
-    assert application_name in applications
+    with app.app_context():
+        assert application_name in get_db()
 
 
 @pytest.mark.parametrize(
@@ -120,7 +121,7 @@ def test_register_and_auth(client, app, app_name):
 
     # Act
     response = client.post(
-        "/registry/register",
+        "/registry/",
         content_type="application/json",
         json={"app_name": app_name},
     )
@@ -140,3 +141,8 @@ def test_register_and_auth(client, app, app_name):
 
     # Assert
     assert auth_response.status_code == 200
+
+
+@pytest.mark.skip("TODO")
+def test_delete_token():
+    pass

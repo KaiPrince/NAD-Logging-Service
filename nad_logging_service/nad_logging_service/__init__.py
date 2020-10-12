@@ -9,7 +9,7 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-from . import logger, config, registry, auth
+from . import logger, config, registry, auth, db
 
 
 def create_app(test_config=None):
@@ -41,6 +41,7 @@ def create_app(test_config=None):
     logger.init(app)
     registry.init(app)
     auth.init(app)
+    db.init(app)
 
     app.add_url_rule("/", "/logger", logger.index)
 
