@@ -1,0 +1,6 @@
+Flask
+black
+flake8
+pytest
+pytest-mock
+flask-cors

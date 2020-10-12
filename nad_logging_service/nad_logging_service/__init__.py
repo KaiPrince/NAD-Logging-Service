@@ -8,7 +8,8 @@
 
 import os
 from flask import Flask
-from . import logger
+from flask_cors import CORS
+from . import logger, config, registry, auth
 
 
 def create_app(test_config=None):
@@ -19,14 +20,28 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, "web_server.sqlite"),
     )
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)
-    else:
-        # load the test config if passed in
+    # CORS policy
+    # TODO: specify allowed origins
+    CORS(app)  # TEMP allow all.
+
+    # load config
+    config_obj = config.Config(app)
+    app.config.from_object(config_obj)
+
+    if test_config is not None:
+        # merge the test config if passed in
         app.config.from_mapping(test_config)
 
     # register routes
     app.register_blueprint(logger.bp)
+    app.register_blueprint(registry.bp)
+    app.register_blueprint(auth.bp)
+
+    # initialize apps
+    logger.init(app)
+    registry.init(app)
+    auth.init(app)
+
+    app.add_url_rule("/", "/logger", logger.index)
 
     return app
