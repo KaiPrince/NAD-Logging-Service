@@ -31,3 +31,6 @@ flask run
 - [ ] Add DB
 - [ ] Split up auth module
 - [ ] Add token expiry and refresh
+- [ ] Implement log schema
+- [ ] Format log entries
+- [ ] Separate loggers for API and app.

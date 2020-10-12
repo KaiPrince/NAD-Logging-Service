@@ -81,7 +81,7 @@ def test_register_application(client, app, application_name):
     )
 
     # Assert
-    assert response.status_code == 201
+    assert response.status_code == 201  # CREATED
 
     assert "token" in response.json
 
