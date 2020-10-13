@@ -32,6 +32,10 @@ def create_app(test_config=None):
         # merge the test config if passed in
         app.config.from_mapping(test_config)
 
+    # make sure instance folder exists.
+    if not os.path.exists(app.instance_path):
+        os.mkdir(app.instance_path)
+
     # register routes
     app.register_blueprint(logger.bp)
     app.register_blueprint(registry.bp)
