@@ -9,7 +9,7 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-from . import logger, config, registry, auth
+from . import logger, config, registry, auth, db
 
 
 def create_app(test_config=None):
@@ -32,6 +32,10 @@ def create_app(test_config=None):
         # merge the test config if passed in
         app.config.from_mapping(test_config)
 
+    # make sure instance folder exists.
+    if not os.path.exists(app.instance_path):
+        os.mkdir(app.instance_path)
+
     # register routes
     app.register_blueprint(logger.bp)
     app.register_blueprint(registry.bp)
@@ -41,6 +45,7 @@ def create_app(test_config=None):
     logger.init(app)
     registry.init(app)
     auth.init(app)
+    db.init(app)
 
     app.add_url_rule("/", "/logger", logger.index)
 
