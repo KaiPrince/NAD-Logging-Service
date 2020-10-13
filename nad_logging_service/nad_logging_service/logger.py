@@ -3,6 +3,7 @@
 
 import os
 import logging
+from logging.config import dictConfig
 from functools import wraps
 from flask import (
     Blueprint,
@@ -12,7 +13,7 @@ from flask import (
     abort,
     make_response,
 )
-from flask.logging import default_handler
+from .auth import verify_token
 
 bp = Blueprint("logger", __name__, url_prefix="/logger")
 
@@ -37,21 +38,8 @@ def init(app: Flask):
     if not os.path.exists(LOG_FOLDER):
         os.mkdir(LOG_FOLDER)
 
-    log_file_name = "log.log"
-    log_file = os.path.join(LOG_FOLDER, log_file_name)
-
-    # Get logger
-    logger = app.logger
-
-    # Remove default handler
-    logger.removeHandler(default_handler)
-
-    # Set up handler
-    file_handler = logging.FileHandler(log_file)
-
-    # Set up logger
-    logger.setLevel("INFO")
-    logger.addHandler(file_handler)
+    # Import Config.
+    dictConfig(app.config["LOGGER_CONFIG"])
 
 
 @bp.route("/")
@@ -63,8 +51,16 @@ def authenticate(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "x-access-token" not in request.headers:
-            current_app.logger.info("Failed Authentication.")
-            return make_response({"message": "Authentication failed."}, 401)
+            error_message = "Missing auth token."
+            current_app.logger.info(error_message)
+            return make_response({"message": error_message}, 401)
+
+        token = request.headers["x-access-token"]
+        if not verify_token(token):
+            error_message = "Auth failed."
+            current_app.logger.info(error_message)
+            return make_response({"message": error_message}, 401)
+
         return f(*args, **kwargs)
 
     return decorated_function

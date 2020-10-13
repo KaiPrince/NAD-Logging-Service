@@ -9,15 +9,15 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-from . import logger, config, registry, auth, db
+from . import logger, config, auth
 
 
 def create_app(test_config=None):
+
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY="dev",
-        DATABASE=os.path.join(app.instance_path, "web_server.sqlite"),
     )
 
     # CORS policy
@@ -38,15 +38,12 @@ def create_app(test_config=None):
 
     # register routes
     app.register_blueprint(logger.bp)
-    app.register_blueprint(registry.bp)
     app.register_blueprint(auth.bp)
 
     # initialize apps
     logger.init(app)
-    registry.init(app)
     auth.init(app)
-    db.init(app)
 
-    app.add_url_rule("/", "/logger", logger.index)
+    app.add_url_rule("/", "index", logger.index)
 
     return app

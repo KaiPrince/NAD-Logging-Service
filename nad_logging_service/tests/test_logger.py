@@ -2,7 +2,6 @@
 import os
 import pytest
 from datetime import datetime
-from nad_logging_service.db import get_db
 
 sample_logs = [
     {
@@ -67,82 +66,6 @@ def test_logger_write(client, app, message):
         assert message in f.read()
 
 
-@pytest.mark.parametrize("application_name", ["BingoBangoBongo", "application_2"])
-def test_register_application(client, app, application_name):
-    """The register service route consumes an application name
-    and produces a token."""
-
-    # Arrange
-
-    # Act
-    response = client.post(
-        "/registry/",
-        content_type="application/json",
-        json={"app_name": application_name},
-    )
-
-    # Assert
-    assert response.status_code == 201  # CREATED
-
-    assert "token" in response.json
-
-    with app.app_context():
-        assert application_name in get_db()
-
-
-@pytest.mark.parametrize(
-    "app_name, token",
-    [("app_1", "freagtkgthsgsdhfjkaf"), ("app_2", "123456ytghbj876ir5")],
-)
-def test_get_auth_token(client, app, mocker, app_name, token):
-    # Arrange
-    mock_registry = {app_name: token}
-    mocker.patch("nad_logging_service.auth.app_registry", mock_registry)
-
-    # Act
-    response = client.post(
-        "/auth/token", content_type="application/json", json={"app_name": app_name}
-    )
-
-    # Assert
-    assert response.status_code == 200
-
-    assert "token" in response.json
-
-    response_token = response.json["token"]
-    assert response_token == token
-
-
-@pytest.mark.parametrize("app_name", [("app_1"), ("app_2")])
-def test_register_and_auth(client, app, app_name):
-    """ Register an application, and verify the token is valid. """
-
-    # Arrange
-
-    # Act
-    response = client.post(
-        "/registry/",
-        content_type="application/json",
-        json={"app_name": app_name},
-    )
-
-    # Assert
-    assert response.status_code == 201
-    assert "token" in response.json
-
-    # Act
-    token = response.json["token"]
-
-    auth_response = client.post(
-        "/auth/verify_token",
-        content_type="application/json",
-        json={"app_name": app_name, "token": token},
-    )
-
-    # Assert
-    assert auth_response.status_code == 200
-
-
 @pytest.mark.skip("TODO")
-def test_delete_token():
+def test_auth_token_with_payload():
     pass

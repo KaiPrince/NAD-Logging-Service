@@ -30,8 +30,9 @@ flask run
 
 - [ ] Format log entries
 - [ ] Adjust transports to allow multiple logger services running.
-- [ ] Add DB
-- [ ] Split up auth module
-- [ ] Add token expiry and refresh
 - [ ] Implement log schema
 - [ ] Separate loggers for API and app.
+- [ ] Add master key to dotenv
+
+- [ ] CLEANUP: remove app registration route.
+- [ ] Remove db and registry module

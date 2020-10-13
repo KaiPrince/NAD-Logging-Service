@@ -12,6 +12,7 @@ LOG_FOLDER = os.path.join(os.path.curdir, "tests", "logs")
 def app(tmp_path):
     temp_logs_folder = tmp_path
 
+    breakpoint()
     # Copy files in test logs folder to temp directory
     filesToCopy = os.listdir(LOG_FOLDER)
     for f in filesToCopy:

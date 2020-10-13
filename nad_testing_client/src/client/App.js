@@ -2,11 +2,38 @@ import React, { useEffect, useState } from 'react';
 
 import { ThemeProvider, createMuiTheme } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import green from '@material-ui/core/colors/green';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+const sampleTests = [
+  {
+    testName: 'test1',
+    result: undefined,
+    status: 'waiting', // DONE, WAITING, RUNNING
+    message: 'test log 1',
+    logLevel: '1',
+    applicationId: '0x01',
+    authToken: '0x01',
+    dateTime: new Date(),
+  },
+  {
+    testName: 'test2',
+    result: undefined,
+    status: 'waiting', // DONE, WAITING, RUNNING
+    message: 'test log 2',
+    logLevel: '2',
+    applicationId: '0x01',
+    authToken: '0x01',
+    dateTime: new Date(),
+  }
+];
 
 const baseTheme = createMuiTheme({
   overrides: {
@@ -35,69 +62,98 @@ const appTheme = theme => ({
         border: '1px solid black',
         padding: '2em'
       }
+    },
+    MuiTypography: {
+      h1: {
+        fontSize: '2em'
+      }
     }
   }
 });
 
 export default function () {
-  const [results, setResults] = useState(null);
+  const [testRunning, setTestRunning] = useState(false);
+  const [tests, setTests] = useState(sampleTests);
 
   const performTest = async (params) => {
-    console.log(`running test ${params.testName}`);
-
-    // await sleep(3000)
+    console.log('params: ', params);
+    startTest(params.testName)
+    await sleep(3000);
     // Throw new error if something out of our control has happened, will stop all tests
     // throw new Error()
 
     try {
-      const result = await fetch('http://localhost:5000/log', {
+      const result = await fetch('http://localhost:5000/logger/log', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-access-token': '0xABC'
         },
         body: JSON.stringify(params)
       });
 
+      completeTest(params.testName, true);
       return `success during ${params.testName} (${result.status})`;
     } catch (exception) {
+      completeTest(params.testName, false);
       return `error during ${params.testName}: ${exception}`;
     }
   };
 
-  const performAllTests = () => {
-    Promise.all([
-      {
-        testName: 'test1',
-        message: 'test log 1',
-        logLevel: '1',
-        applicationId: '0x01',
-        authToken: '0x01',
-        dateTime: new Date(),
-      },
-      {
-        testName: 'test2',
-        message: 'test log 2',
-        logLevel: '2',
-        applicationId: '0x01',
-        authToken: '0x01',
-        dateTime: new Date(),
+  // TODO Improve this logic
+  const renderTest = (testName, status, result) => {
+    const renderStatus = () => {
+      switch (status) {
+        case 'done':
+          return 'DONE';
+        case 'waiting':
+          if (testRunning) {
+            return <CircularProgress />;
+          }
+          break;
+        default:
+          if (testRunning) {
+            return <CircularProgress />;
+          }
+          return undefined;
       }
-    ].map(performTest))
-      .then((results) => {
-        setResults(results);
-        console.log(results);
-      })
-      .catch((err) => {
-        // An error in the client
-        console.log('real bad error during test man');
-      });
+    }
 
-    console.log('start testing');
+    return <div>{testName} {renderStatus()}</div>;
   };
 
-  useEffect(() => {
-    performAllTests();
-  }, []);
+  const resetTests = () => {
+    // NOT IMPLEMENTED
+  }
+
+  const completeTest = (testName, result) => {
+    setTests(tests.map((item) => {
+      if (item.testName === testName) {
+        item.result = result;
+        item.status = 'done';
+      }
+
+      return item;
+    }));
+  };
+
+  const startTest = (testName) => {
+    setTests(tests.map((item) => {
+      if (item.testName === testName) {
+        item.status = 'running';
+      }
+
+      return item;
+    }));
+  };
+
+  const performAllTests = async () => {
+    setTestRunning(true);
+    for (const index in tests) {
+      await performTest(tests[index])
+    }
+    setTestRunning(false);
+  };
 
   return (
     <div>
@@ -106,19 +162,22 @@ export default function () {
         <ThemeProvider theme={appTheme}>
           <Grid container>
             <Grid item>
-              RUN ALL TEST
+              <Typography variant="h1">
+                RUN SET OF LOG REQUESTS
+              </Typography>
+              <Button onClick={performAllTests}>Start</Button>
               <br />
-              {results ? (
+
+              {tests ? (
                 <>
-                  {results.map(result => <div>{result}</div>)}
+                  {tests.map(test => <div>{renderTest(test.testName, test.status, test.result)}</div>)}
                 </>
               ) : 'no results'}
             </Grid>
             <Grid item>
-              RUN CUSTOM TEST
-            </Grid>
-            <Grid item>
-              REGISTER SERVICE
+              <Typography variant="h1">
+                RUN CUSTOM REQUEST
+              </Typography>
             </Grid>
           </Grid>
         </ThemeProvider>
