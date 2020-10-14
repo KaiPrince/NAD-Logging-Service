@@ -2,7 +2,6 @@
 # This is the logging service.
 
 import os
-import logging
 from logging.config import dictConfig
 from functools import wraps
 from flask import (

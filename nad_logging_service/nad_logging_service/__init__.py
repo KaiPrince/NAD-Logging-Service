@@ -25,12 +25,8 @@ def create_app(test_config=None):
     CORS(app)  # TEMP allow all.
 
     # load config
-    config_obj = config.Config(app)
+    config_obj = config.Config(app, test_config)
     app.config.from_object(config_obj)
-
-    if test_config is not None:
-        # merge the test config if passed in
-        app.config.from_mapping(test_config)
 
     # make sure instance folder exists.
     if not os.path.exists(app.instance_path):
