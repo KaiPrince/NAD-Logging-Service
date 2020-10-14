@@ -43,7 +43,7 @@ def test_index_ok(client):
 
 @pytest.mark.parametrize(
     "message",
-    ["This is a test.", "Another test."],
+    ["first test.", "This is a test.", "Another test."],
 )
 def test_logger_write(client, app, message):
     """ Logger writes to a file. """

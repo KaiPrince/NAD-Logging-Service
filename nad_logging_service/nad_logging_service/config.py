@@ -35,6 +35,7 @@ class Config(object):
 def _logger_config(log_folder: str):
     return {
         "version": 1,
+        "disable_existing_loggers": False,
         "formatters": {
             "brief": {"format": "%(message)s"},
             "default": {
