@@ -38,3 +38,5 @@ flask run
 
 - [ ] CLEANUP: remove app registration route.
 - [ ] Remove db and registry module
+- [ ] overwrite datetime if provided.
+- [ ] Log arbitrary extras.
