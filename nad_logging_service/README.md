@@ -33,6 +33,8 @@ flask run
 - [ ] Implement log schema
 - [ ] Separate loggers for API and app.
 - [ ] Add master key to dotenv
+- [ ] Implement processName, Id
+- [ ] Implement manual testing in client
 
 - [ ] CLEANUP: remove app registration route.
 - [ ] Remove db and registry module
