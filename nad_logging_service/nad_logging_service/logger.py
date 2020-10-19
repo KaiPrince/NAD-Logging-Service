@@ -79,14 +79,20 @@ def log():
     if request.method == "POST":
         json = request.json
 
-        required_params = ["message", "applicationName"]
+        required_params = ["message", "applicationName", "processName", "processId"]
         if any(x not in json for x in required_params):
             return abort(400)
 
         application_name = json["applicationName"]
         message = json["message"]
+        process_name = json["processName"]
+        process_id = json["processId"]
 
-        extra = {"application_name": application_name}
+        extra = {
+            "application_name": application_name,
+            "process_name": process_name,
+            "process_id": process_id,
+        }
 
         get_logger().info(message, extra=extra)
 

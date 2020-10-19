@@ -10,6 +10,8 @@ sample_logs = [
         "applicationName": "BingoBangoBongo",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
         "dateTime": datetime(2020, 1, 1),
+        "processName": "node.exe",
+        "processId": "6545",
     },
     {
         "message": "User authenticated successfully.",
@@ -18,6 +20,8 @@ sample_logs = [
         "applicationName": "BingoBangoBongo",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
         "dateTime": datetime(2020, 5, 16),
+        "processName": "node.exe",
+        "processId": "1337",
     },
     {
         "message": "User could not be found.",
@@ -26,6 +30,8 @@ sample_logs = [
         "applicationName": "Application 2",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
         "dateTime": datetime(2020, 4, 20),
+        "processName": "java.exe",
+        "processId": "9385",
     },
 ]
 
@@ -68,14 +74,54 @@ def test_auth_token_with_payload():
     pass
 
 
-@pytest.mark.skip("TODO")
-def test_process_name_in_schema():
-    pass
+@pytest.mark.parametrize("data", sample_logs)
+def test_log_process_name(app, client, data):
+    # Arrange
+    process_name = data["processName"]
+
+    # Act
+    response = client.post(
+        "/logger/log",
+        content_type="application/json",
+        json=data,
+        headers={"x-access-token": "abc"},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    filename = app.config["LOGGER_FILENAME"]
+    assert filename in os.listdir(app.config["LOG_FOLDER"])
+
+    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
+        last_line = f.readlines()[-1]
+
+    assert process_name in last_line
 
 
-@pytest.mark.skip("TODO")
-def test_process_id_in_schema():
-    pass
+@pytest.mark.parametrize("data", sample_logs)
+def test_log_process_id(app, client, data):
+    # Arrange
+    process_id = data["processId"]
+
+    # Act
+    response = client.post(
+        "/logger/log",
+        content_type="application/json",
+        json=data,
+        headers={"x-access-token": "abc"},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    filename = app.config["LOGGER_FILENAME"]
+    assert filename in os.listdir(app.config["LOG_FOLDER"])
+
+    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
+        last_line = f.readlines()[-1]
+
+    assert process_id in last_line
 
 
 @pytest.mark.parametrize("data", sample_logs)

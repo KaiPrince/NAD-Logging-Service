@@ -56,7 +56,7 @@ def _logger_config(
             },
             "logger": {
                 "format": "%(asctime)s %(levelname)-8s %(name)-15s "
-                "%(application_name)-15s %(message)s",
+                "%(application_name)-15s %(process_name)s %(process_id)s %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
         },
