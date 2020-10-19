@@ -147,3 +147,28 @@ def test_log_application_name(app, client, data):
         last_line = f.readlines()[-1]
 
     assert application_name in last_line
+
+
+@pytest.mark.parametrize("data", sample_logs)
+def test_log_level(app, client, data):
+    # Arrange
+    log_level = data["logLevel"]
+
+    # Act
+    response = client.post(
+        "/logger/log",
+        content_type="application/json",
+        json=data,
+        headers={"x-access-token": "abc"},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    filename = app.config["LOGGER_FILENAME"]
+    assert filename in os.listdir(app.config["LOG_FOLDER"])
+
+    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
+        last_line = f.readlines()[-1]
+
+    assert log_level in last_line

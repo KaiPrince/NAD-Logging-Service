@@ -87,11 +87,13 @@ def log():
         message = json["message"]
         process_name = json["processName"]
         process_id = json["processId"]
+        log_level = json["logLevel"]
 
         extra = {
             "application_name": application_name,
             "process_name": process_name,
             "process_id": process_id,
+            "log_level": log_level,
         }
 
         get_logger().info(message, extra=extra)
