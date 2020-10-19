@@ -6,6 +6,11 @@ from flask import Flask
 
 
 class Config(object):
+    LOGGER_NAME = "logger"
+    LOGGER_FILENAME = "log.log"
+
+    LOCAL_LOG_FILENAME = "local.log"
+
     def __init__(self, app: Flask, overwrite_config: dict = None):
 
         self.LOG_FOLDER = os.path.join(app.instance_path, "logs")
@@ -18,7 +23,12 @@ class Config(object):
         if hasattr(self, "__logger_config"):
             return getattr(self, "__logger_config")
         else:
-            return _logger_config(self.LOG_FOLDER)
+            return _logger_config(
+                self.LOG_FOLDER,
+                self.LOGGER_NAME,
+                self.LOCAL_LOG_FILENAME,
+                self.LOGGER_FILENAME,
+            )
 
     @LOGGER_CONFIG.setter
     def LOGGER_CONFIG(self, val):
@@ -32,7 +42,9 @@ class Config(object):
                 setattr(self, key, value)
 
 
-def _logger_config(log_folder: str):
+def _logger_config(
+    log_folder: str, logger_name: str, local_log_filename: str, log_filename: str
+):
     return {
         "version": 1,
         "disable_existing_loggers": False,
@@ -43,24 +55,40 @@ def _logger_config(log_folder: str):
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
         },
-        "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-                "level": "DEBUG",
-                "formatter": "brief",
-                "stream": "ext://sys.stdout",
+        "loggers": {
+            logger_name: {
+                "handlers": ["file"],
+                "level": "INFO",
             },
+            "werkzeug": {
+                "handlers": ["local_log"],
+                "level": "DEBUG",
+            },
+        },
+        "handlers": {
+            # "console": {
+            #     "class": "logging.StreamHandler",
+            #     "level": "DEBUG",
+            #     "formatter": "brief",
+            #     "stream": "ext://sys.stdout",
+            # },
             "file": {
                 "class": "logging.FileHandler",
                 "level": "INFO",
                 "formatter": "default",
-                "filename": os.path.join(log_folder, "log.log"),
+                "filename": os.path.join(log_folder, log_filename),
             },
+            "local_log": {
+                "class": "logging.FileHandler",
+                "level": "DEBUG",
+                "formatter": "default",
+                "filename": os.path.join(log_folder, local_log_filename),
+            }
             # "wsgi": {
             #     "class": "logging.StreamHandler",
             #     "stream": "ext://flask.logging.wsgi_errors_stream",
             #     "formatter": "default",
             # },
         },
-        "root": {"level": "INFO", "handlers": ["console", "file"]},
+        "root": {"level": "INFO", "handlers": []},
     }

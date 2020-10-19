@@ -3,6 +3,7 @@
 
 import os
 from logging.config import dictConfig
+import logging
 from functools import wraps
 from flask import (
     Blueprint,
@@ -25,6 +26,8 @@ Sample Log:
         "applicationName": "BingoBangoBongo",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
         "dateTime": datetime("2020-04-20"),
+        "processName": "node.exe"
+        "processId": 6545,
     },
 """
 
@@ -39,6 +42,10 @@ def init(app: Flask):
 
     # Import Config.
     dictConfig(app.config["LOGGER_CONFIG"])
+
+
+def get_logger():
+    return logging.getLogger(current_app.config["LOGGER_NAME"])
 
 
 @bp.route("/")
@@ -77,7 +84,7 @@ def log():
 
         message = json["message"]
 
-        current_app.logger.info(message)
+        get_logger().info(message)
 
         return "Success!"
 
