@@ -54,11 +54,17 @@ def _logger_config(
                 "format": "%(asctime)s %(levelname)-8s %(name)-15s %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
+            "logger": {
+                "format": "%(asctime)s %(levelname)-8s %(name)-15s "
+                "%(application_name)-15s %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
         },
         "loggers": {
             logger_name: {
                 "handlers": ["file"],
                 "level": "INFO",
+                "formatter": "logger",
             },
             "werkzeug": {
                 "handlers": ["local_log"],
@@ -75,7 +81,7 @@ def _logger_config(
             "file": {
                 "class": "logging.FileHandler",
                 "level": "INFO",
-                "formatter": "default",
+                "formatter": "logger",
                 "filename": os.path.join(log_folder, log_filename),
             },
             "local_log": {
