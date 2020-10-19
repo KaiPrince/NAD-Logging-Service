@@ -140,7 +140,7 @@ export default function () {
           item.status = 'done';
         }
         return item;
-      })
+      }),
     );
   };
 
@@ -150,7 +150,7 @@ export default function () {
         item.result = null;
         item.status = 'waiting';
         return item;
-      })
+      }),
     );
   };
 
@@ -162,7 +162,7 @@ export default function () {
         }
 
         return item;
-      })
+      }),
     );
   };
 
@@ -182,8 +182,13 @@ export default function () {
         <ThemeProvider theme={appTheme}>
           <Grid container>
             <Grid item>
-              <Typography variant="h1">RUN SET OF LOG REQUESTS</Typography>
-              <Button disabled={testRunning} onClick={performAllTests}>
+              <Typography variant="h1">
+                RUN SET OF LOG REQUESTS
+              </Typography>
+              <Button
+                disabled={testRunning}
+                onClick={performAllTests}
+              >
                 Start
               </Button>
               <br />
