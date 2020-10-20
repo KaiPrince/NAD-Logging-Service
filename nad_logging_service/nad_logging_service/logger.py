@@ -99,7 +99,7 @@ def log():
         # ..Add extra properties
         if "extra" in json:
             serialized_props = _json.dumps(json["extra"])
-            message += "" + serialized_props
+            message += " " + serialized_props
 
         get_logger().info(message, extra=extra)
 
