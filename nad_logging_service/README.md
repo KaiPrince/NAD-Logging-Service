@@ -28,15 +28,11 @@ flask run
 
 ## TODO
 
-- [ ] Format log entries
 - [ ] Adjust transports to allow multiple logger services running.
-- [ ] Implement log schema
 - [ ] Separate loggers for API and app.
 - [ ] Add master key to dotenv
-- [ ] Implement processName, Id
 - [ ] Implement manual testing in client
 
 - [ ] CLEANUP: remove app registration route.
 - [ ] Remove db and registry module
 - [ ] overwrite datetime if provided.
-- [ ] Log arbitrary extras.
