@@ -31,7 +31,7 @@ const sampleTests = [
   {
     result: undefined,
     actualResult: undefined,
-    status: 'waiting', // DONE, WAITING, RUNNING
+    status: 'waiting',
     message: 'User authenticated successfully.',
     logLevel: 'INFO',
     applicationName: 'BingoBangoBongo',
@@ -45,10 +45,10 @@ const sampleTests = [
   {
     result: undefined,
     actualResult: undefined,
-    status: 'waiting', // DONE, WAITING, RUNNING
+    status: 'waiting',
     message: 'User could not be found.',
     logLevel: 'ERROR',
-    applicationName: 'BingoBangoBongo',
+    applicationName: 'Application 2',
     processName: 'java.exe',
     processId: 9385,
     dateTime: new Date(2020, 4, 20),
@@ -292,7 +292,24 @@ export default function () {
             <Grid item>
               <Typography variant="h1">RUN CUSTOM REQUEST</Typography>
               <div style={{borderTop: '3px solid grey', marginTop: '1em', marginBottom: '1em'}}></div>
-              <Button>
+              <Button
+                onClick={async () => {
+                  const message = document.getElementById('message').value;
+                  const debugLevel = document.getElementById('debugLevel').value;
+                  const url = document.getElementById('url').value;
+
+                  const result = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-access-token': '0xABC',
+                    },
+                    body: JSON.stringify({message, debugLevel}), // TODO Only send relevant test info
+                  });
+
+                  console.log(result);
+                }}
+              >
                 Go
               </Button>
               <br />
