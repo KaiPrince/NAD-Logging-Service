@@ -2,6 +2,7 @@
 import os
 import pytest
 from datetime import datetime
+import json
 
 sample_logs = [
     {
@@ -172,3 +173,35 @@ def test_log_level(app, client, data):
         last_line = f.readlines()[-1]
 
     assert log_level in last_line
+
+
+@pytest.mark.parametrize("data", sample_logs)
+def test_log_extra_props(app, client, data):
+    # Arrange
+    if "extra" not in data:
+        pytest.skip()
+    extra_props = data["extra"]
+
+    # Act
+    response = client.post(
+        "/logger/log",
+        content_type="application/json",
+        json=data,
+        headers={"x-access-token": "abc"},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    filename = app.config["LOGGER_FILENAME"]
+    assert filename in os.listdir(app.config["LOG_FOLDER"])
+
+    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
+        last_line = f.readlines()[-1]
+
+    # ..order doesn't mattter
+    sorted_extra_props = dict()
+    for key in sorted(extra_props.keys()):
+        sorted_extra_props[key] = extra_props[key]
+
+    assert json.dumps(sorted_extra_props) in last_line

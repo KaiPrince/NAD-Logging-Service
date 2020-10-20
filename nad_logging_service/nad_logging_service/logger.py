@@ -4,15 +4,9 @@
 import os
 from logging.config import dictConfig
 import logging
+import json as _json
 from functools import wraps
-from flask import (
-    Blueprint,
-    request,
-    Flask,
-    current_app,
-    abort,
-    make_response,
-)
+from flask import Blueprint, request, Flask, current_app, abort, make_response
 from .auth import verify_token
 
 bp = Blueprint("logger", __name__, url_prefix="/logger")
@@ -101,6 +95,11 @@ def log():
             "process_id": process_id,
             "log_level": log_level,
         }
+
+        # ..Add extra properties
+        if "extra" in json:
+            serialized_props = _json.dumps(json["extra"])
+            message += "" + serialized_props
 
         get_logger().info(message, extra=extra)
 
