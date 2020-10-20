@@ -32,6 +32,10 @@ flask run
 - [ ] Separate loggers for API and app.
 - [ ] Add master key to dotenv
 - [ ] Implement manual testing in client
+- [ ] Indicate local or client datetime
+- [ ] log both client and local time
+- [ ] Standardize datetime to UTC
+- [ ] Value of client datetime difference (optional)
 
 - [ ] CLEANUP: remove app registration route.
 - [ ] Remove db and registry module
