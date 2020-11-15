@@ -41,3 +41,5 @@ flask run
 - [ ] Remove db and registry module
 - [ ] overwrite datetime if provided.
 - [ ] write exception tests
+- [ ] rate limit routes
+- [ ] encrypt messages & data
