@@ -32,16 +32,16 @@ flask run
 - [x] Add master key to dotenv
 - [ ] Implement manual testing in client
 - [x] Store two datetime (one client, one server)
-- [ ] Standardize datetime to ISO
+- [x] Standardize datetime to ISO
 - [x] rate limit routes (1 per second on all routes)
 - [ ] write exception tests
-- [ ] encrypt messages & data
 - [ ] malformed logs & error checking
 - [ ] stack tracing
 - [ ] json web tokens (optional)
 
-- [ ] CLEANUP: remove app registration route.
+- [x] CLEANUP: remove app registration route.
 - [ ] Separate loggers for API and app.
-- [ ] Remove db and registry module
+- [x] Remove db and registry module
 - [ ] Add catch all error route
 - [ ] Add validation
+- [ ] encrypt messages & data
