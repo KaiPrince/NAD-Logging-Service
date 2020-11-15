@@ -4,6 +4,7 @@
 import os
 from logging.config import dictConfig
 import logging
+import time
 import json as _json
 from functools import wraps
 from flask import Blueprint, request, Flask, current_app, abort, make_response
@@ -39,6 +40,9 @@ def init(app: Flask):
 
     # Import Config.
     dictConfig(app.config["LOGGER_CONFIG"])
+
+    # Use UTC time when logging.
+    logging.Formatter.converter = time.gmtime
 
 
 def get_logger():

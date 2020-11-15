@@ -283,3 +283,37 @@ def test_log_write_rate_limit(client, app):
 
     # Assert
     assert response.status_code == 429
+
+
+@pytest.mark.parametrize("data", sample_logs)
+def test_logger_timezone_utc(client, app, data):
+    """ DateTimes must always be stored in UTC/GMT. """
+
+    # Arrange
+
+    # ..clients are responsible for sending UTC time.
+    # client_local_time = data["dateTime"]
+    # client_utc_time = datetime(client_local_time)
+
+    server_local_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    server_utc_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Act
+    response = client.post(
+        "/logger/log",
+        content_type="application/json",
+        json=data,
+        headers={"x-access-token": data["authToken"]},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    filename = app.config["LOGGER_FILENAME"]
+    assert filename in os.listdir(app.config["LOG_FOLDER"])
+
+    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
+        last_line = f.readlines()[-1]
+
+        assert server_utc_time in last_line and server_local_time not in last_line
+        # assert client_utc_time in log_line and client_local_time not in log_line
