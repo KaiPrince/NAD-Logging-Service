@@ -1,4 +1,11 @@
-# TODO FHC
+"""
+ * Project Name: NAD-Logging-Service
+ * File Name: $auth.py
+ * Programmer: Kai Prince
+ * Date: Sun, Nov 15, 2020
+ * Description: This file contains the authentication app.
+"""
+
 # The auth app is used to generate and verify tokens.
 
 import secrets
