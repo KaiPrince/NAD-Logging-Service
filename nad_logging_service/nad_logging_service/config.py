@@ -16,7 +16,7 @@ class Config(object):
     def __init__(self, app: Flask, overwrite_config: dict = None):
 
         self.LOG_FOLDER = os.path.join(app.instance_path, "logs")
-        # self.TOKEN = os.getenv("TOKEN")
+        self.TOKEN = os.getenv("TOKEN")
 
         if overwrite_config is not None:
             self.from_dict(overwrite_config)
