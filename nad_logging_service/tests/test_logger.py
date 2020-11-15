@@ -94,11 +94,6 @@ def test_logger_write(client, app, data):
         assert message in f.read()
 
 
-@pytest.mark.skip("TODO")
-def test_auth_token_with_payload():
-    pass
-
-
 @pytest.mark.parametrize("data", sample_logs)
 def test_log_process_name(app, client, data):
     # Arrange
