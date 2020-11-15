@@ -22,6 +22,7 @@ def app(tmp_path):
     TEST_CONFIG = {
         "TESTING": True,
         "LOG_FOLDER": temp_logs_folder,
+        "TOKEN": "eyy35t4m5vtk489k7vtk5ivk8ct74",
         # TODO enable rate limiting only on certain tests
         # "RATELIMIT_ENABLED": False,
     }

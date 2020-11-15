@@ -9,7 +9,8 @@
 # The auth app is used to generate and verify tokens.
 
 import secrets
-from flask import Flask, Blueprint, request, abort, make_response
+from functools import wraps
+from flask import Flask, Blueprint, request, abort, make_response, current_app
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -17,7 +18,9 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 def init(app: Flask):
     """ This is called during app creation to initialize the auth app. """
 
-    pass
+    if "TOKEN" not in app.config:
+        app.logger.exception("Auth Token is not set!")
+        raise RuntimeError("Auth Token is not set!")
 
 
 def generate_token():
@@ -25,4 +28,23 @@ def generate_token():
 
 
 def verify_token(token):
-    return True  # token == app_registry[app_name]
+    return token == current_app.config["TOKEN"]
+
+
+def authenticate(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "x-access-token" not in request.headers:
+            error_message = "Missing auth token."
+            current_app.logger.info(error_message)
+            return make_response({"message": error_message}, 401)
+
+        token = request.headers["x-access-token"]
+        if not verify_token(token):
+            error_message = "Auth failed."
+            current_app.logger.info(error_message)
+            return make_response({"message": error_message}, 401)
+
+        return f(*args, **kwargs)
+
+    return decorated_function

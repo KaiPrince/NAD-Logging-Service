@@ -84,7 +84,7 @@ def test_logger_write(client, app, data):
         "/logger/log",
         content_type="application/json",
         json=data,
-        headers={"x-access-token": "abc"},
+        headers={"x-access-token": data["authToken"]},
     )
 
     # Assert
@@ -109,7 +109,7 @@ def test_log_process_name(app, client, data):
         "/logger/log",
         content_type="application/json",
         json=data,
-        headers={"x-access-token": "abc"},
+        headers={"x-access-token": data["authToken"]},
     )
 
     # Assert
@@ -134,7 +134,7 @@ def test_log_process_id(app, client, data):
         "/logger/log",
         content_type="application/json",
         json=data,
-        headers={"x-access-token": "abc"},
+        headers={"x-access-token": data["authToken"]},
     )
 
     # Assert
@@ -159,7 +159,7 @@ def test_log_application_name(app, client, data):
         "/logger/log",
         content_type="application/json",
         json=data,
-        headers={"x-access-token": "abc"},
+        headers={"x-access-token": data["authToken"]},
     )
 
     # Assert
@@ -184,7 +184,7 @@ def test_log_level(app, client, data):
         "/logger/log",
         content_type="application/json",
         json=data,
-        headers={"x-access-token": "abc"},
+        headers={"x-access-token": data["authToken"]},
     )
 
     # Assert
@@ -211,7 +211,7 @@ def test_log_extra_props(app, client, data):
         "/logger/log",
         content_type="application/json",
         json=data,
-        headers={"x-access-token": "abc"},
+        headers={"x-access-token": data["authToken"]},
     )
 
     # Assert
@@ -247,7 +247,7 @@ def test_log_write_rate_limit(client, app):
             "/logger/log",
             content_type="application/json",
             json=data,
-            headers={"x-access-token": "abc"},
+            headers={"x-access-token": data["authToken"]},
         )
 
         # Assert
@@ -258,7 +258,7 @@ def test_log_write_rate_limit(client, app):
         "/logger/log",
         content_type="application/json",
         json=data,
-        headers={"x-access-token": "abc"},
+        headers={"x-access-token": data["authToken"]},
     )
 
     # Assert

@@ -9,8 +9,11 @@
 import os
 from flask import Flask
 from flask_cors import CORS
+from dotenv import load_dotenv, find_dotenv
 from .rate_limiter import limiter
 from . import logger, config, auth
+
+load_dotenv(find_dotenv(), verbose=True)
 
 
 def create_app(test_config=None):
@@ -18,7 +21,7 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY="dev",
+        SECRET_KEY="dev",  # TODO
     )
 
     # CORS policy

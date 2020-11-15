@@ -7,7 +7,7 @@ import logging
 import json as _json
 from functools import wraps
 from flask import Blueprint, request, Flask, current_app, abort, make_response
-from .auth import verify_token
+from .auth import authenticate
 from .rate_limiter import limiter
 
 bp = Blueprint("logger", __name__, url_prefix="/logger")
@@ -49,25 +49,6 @@ def get_logger():
 @limiter.limit("5 per minute")
 def index():
     return "Hello World!"
-
-
-def authenticate(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "x-access-token" not in request.headers:
-            error_message = "Missing auth token."
-            current_app.logger.info(error_message)
-            return make_response({"message": error_message}, 401)
-
-        token = request.headers["x-access-token"]
-        if not verify_token(token):
-            error_message = "Auth failed."
-            current_app.logger.info(error_message)
-            return make_response({"message": error_message}, 401)
-
-        return f(*args, **kwargs)
-
-    return decorated_function
 
 
 @bp.route("/log", methods=["GET", "POST"])
