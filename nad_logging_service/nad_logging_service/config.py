@@ -11,6 +11,8 @@ class Config(object):
 
     LOCAL_LOG_FILENAME = "local.log"
 
+    RATELIMIT_DEFAULT = "1 per second"
+
     def __init__(self, app: Flask, overwrite_config: dict = None):
 
         self.LOG_FOLDER = os.path.join(app.instance_path, "logs")
@@ -18,6 +20,7 @@ class Config(object):
         if overwrite_config is not None:
             self.from_dict(overwrite_config)
 
+    # TODO find out what this does and comment it
     @property
     def LOGGER_CONFIG(self):
         if hasattr(self, "__logger_config"):

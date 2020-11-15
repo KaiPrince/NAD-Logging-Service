@@ -1,4 +1,11 @@
-# TODO FHC
+"""
+ * Project Name: NAD-Logging-Service
+ * File Name: test_logger.py
+ * Programmer: Kai Prince
+ * Date: Sun, Nov 15, 2020
+ * Description: This file contains tests for the logger app.
+"""
+
 import os
 import pytest
 from datetime import datetime
@@ -48,9 +55,11 @@ def test_index_ok(client):
     assert response.status_code == 200
 
 
-def test_index_rate_limit(client):
+def test_index_rate_limit(client, app):
     """ Logger fails after 5 requests. """
     # Arrange
+    # ..enable rate limiting in testing mode
+    # app.config["RATELIMIT_ENABLED"] = True
 
     # Act
     for _ in range(5):
@@ -220,3 +229,37 @@ def test_log_extra_props(app, client, data):
         sorted_extra_props[key] = extra_props[key]
 
     assert json.dumps(sorted_extra_props) in last_line
+
+
+def test_log_write_rate_limit(client, app):
+    """ Logger fails after 2 simultaneous requests. """
+
+    # Arrange
+    rate_limit = 1
+    data = sample_logs[0]
+
+    # ..enable rate limiting in testing mode
+    # app.config["RATELIMIT_ENABLED"] = True
+
+    # Act
+    for _ in range(rate_limit):
+        response = client.post(
+            "/logger/log",
+            content_type="application/json",
+            json=data,
+            headers={"x-access-token": "abc"},
+        )
+
+        # Assert
+        assert response.status_code == 200
+
+    # Act
+    response = client.post(
+        "/logger/log",
+        content_type="application/json",
+        json=data,
+        headers={"x-access-token": "abc"},
+    )
+
+    # Assert
+    assert response.status_code == 429

@@ -19,7 +19,14 @@ def app(tmp_path):
             dest_file = temp_logs_folder / f
             copyfile(src, dest_file)
 
-    app = create_app({"TESTING": True, "LOG_FOLDER": temp_logs_folder})
+    TEST_CONFIG = {
+        "TESTING": True,
+        "LOG_FOLDER": temp_logs_folder,
+        # TODO enable rate limiting only on certain tests
+        # "RATELIMIT_ENABLED": False,
+    }
+
+    app = create_app(TEST_CONFIG)
 
     yield app
 
