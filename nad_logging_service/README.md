@@ -38,6 +38,7 @@ flask run
 - [ ] malformed logs & error checking
 - [ ] stack tracing
 - [ ] json web tokens (optional)
+- [x] limit log request size
 
 - [x] CLEANUP: remove app registration route.
 - [ ] Separate loggers for API and app.

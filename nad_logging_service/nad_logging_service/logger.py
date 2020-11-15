@@ -8,12 +8,62 @@ import time
 import json as _json
 from functools import wraps
 from flask import Blueprint, request, Flask, current_app, abort, make_response
+from dataclasses import dataclass
+from attr import attrs, attrib, validators
 from .auth import authenticate
 from .rate_limiter import limiter
 
 bp = Blueprint("logger", __name__, url_prefix="/logger")
 
 # limiter.limit("5 per minute")(bp)
+
+# ............. Model ............
+
+
+@attrs
+class LogRecord:
+
+    message: str = attrib()
+
+    log_level: str = attrib()
+
+    @log_level.validator
+    def __check_log_level(self, attribute, value):
+        if value not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
+            # TODO use validate method instead of throwing error?
+            raise ValueError("Invalid log level: " + value)
+
+    application_name: str = attrib()
+
+    process_name: str = attrib()
+
+    process_id: int = attrib(validator=validators.instance_of(int), converter=int)
+
+    client_time: str = attrib()
+
+    extra: dict = attrib(factory=dict)
+
+    @classmethod
+    def from_json(cls, json):
+        message = json["message"]
+
+        application_name = json["applicationName"]
+        process_name = json["processName"]
+        process_id = json["processId"]
+        log_level = json["logLevel"]
+        client_time = json["dateTime"]
+        extra = json["extra"] if "extra" in json else dict()
+
+        return cls(
+            message=message,
+            application_name=application_name,
+            process_name=process_name,
+            process_id=process_id,
+            log_level=log_level,
+            client_time=client_time,
+            extra=extra,
+        )
+
 
 """
 Sample Log:
@@ -28,6 +78,8 @@ Sample Log:
         "processId": 6545,
     },
 """
+
+# ............. Flask ............
 
 
 def init(app: Flask):
@@ -45,8 +97,44 @@ def init(app: Flask):
     logging.Formatter.converter = time.gmtime
 
 
+# ............. Functions ............
+
+
 def get_logger():
     return logging.getLogger(current_app.config["LOGGER_NAME"])
+
+
+def log_record_from_json(json):
+
+    log_record = LogRecord.from_json(json)
+    print(log_record)
+
+    return log_record
+
+
+def valid_log_record(log_record):
+    return True
+
+
+def write_to_log(log_record):
+    message = log_record.message
+
+    extra = {
+        "application_name": log_record.application_name,
+        "process_name": log_record.process_name,
+        "process_id": log_record.process_id,
+        "log_level": log_record.log_level,
+        "client_time": log_record.client_time,
+    }
+
+    # ..Add extra properties
+    serialized_props = _json.dumps(log_record.extra)
+    message += " " + serialized_props
+
+    get_logger().info(message, extra=extra)
+
+
+# .............. Routes ..............
 
 
 @bp.route("/")
@@ -73,27 +161,12 @@ def log():
         if any(x not in json for x in required_params):
             return abort(400)
 
-        application_name = json["applicationName"]
-        message = json["message"]
-        process_name = json["processName"]
-        process_id = json["processId"]
-        log_level = json["logLevel"]
-        client_time = json["dateTime"]
+        log_record = log_record_from_json(json)
 
-        extra = {
-            "application_name": application_name,
-            "process_name": process_name,
-            "process_id": process_id,
-            "log_level": log_level,
-            "client_time": client_time,
-        }
+        if not valid_log_record(log_record):
+            return abort(400)  # TODO more specific error message
 
-        # ..Add extra properties
-        if "extra" in json:
-            serialized_props = _json.dumps(json["extra"])
-            message += " " + serialized_props
-
-        get_logger().info(message, extra=extra)
+        write_to_log(log_record)
 
         return "Success!"
 
