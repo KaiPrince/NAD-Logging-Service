@@ -8,8 +8,11 @@ import json as _json
 from functools import wraps
 from flask import Blueprint, request, Flask, current_app, abort, make_response
 from .auth import verify_token
+from .rate_limiter import limiter
 
 bp = Blueprint("logger", __name__, url_prefix="/logger")
+
+# limiter.limit("5 per minute")(bp)
 
 """
 Sample Log:
@@ -43,6 +46,7 @@ def get_logger():
 
 
 @bp.route("/")
+@limiter.limit("5 per minute")
 def index():
     return "Hello World!"
 

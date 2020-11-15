@@ -48,6 +48,21 @@ def test_index_ok(client):
     assert response.status_code == 200
 
 
+def test_index_rate_limit(client):
+    """ Logger fails after 5 requests. """
+    # Arrange
+
+    # Act
+    for _ in range(5):
+        response = client.get("/")
+        assert response.status_code == 200
+
+    response = client.get("/")
+
+    # Assert
+    assert response.status_code == 429
+
+
 @pytest.mark.parametrize("data", sample_logs)
 def test_logger_write(client, app, data):
     """ Logger writes to a file. """

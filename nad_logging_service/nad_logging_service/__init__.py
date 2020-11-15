@@ -9,6 +9,7 @@
 import os
 from flask import Flask
 from flask_cors import CORS
+from .rate_limiter import limiter
 from . import logger, config, auth
 
 
@@ -32,14 +33,14 @@ def create_app(test_config=None):
     if not os.path.exists(app.instance_path):
         os.mkdir(app.instance_path)
 
-    # register routes
-    app.register_blueprint(logger.bp)
-    app.register_blueprint(auth.bp)
-
     # initialize apps
     logger.init(app)
     auth.init(app)
+    limiter.init_app(app)
 
+    # register routes
+    app.register_blueprint(logger.bp)
+    app.register_blueprint(auth.bp)
     app.add_url_rule("/", "index", logger.index)
 
     return app
