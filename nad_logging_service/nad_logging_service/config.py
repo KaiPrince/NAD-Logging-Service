@@ -61,6 +61,7 @@ def _logger_config(
             "logger": {
                 "format": "%(asctime)s %(log_level)-8s "
                 "%(application_name)-10s:%(process_name)-5s:%(process_id)-5s "
+                "%(client_time)s "
                 "%(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },

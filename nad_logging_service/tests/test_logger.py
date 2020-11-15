@@ -17,7 +17,7 @@ sample_logs = [
         "logLevel": "CRITICAL",
         "applicationName": "BingoBangoBongo",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": datetime(2020, 1, 1),
+        "dateTime": str(datetime(2020, 1, 1)),
         "processName": "node.exe",
         "processId": "6545",
     },
@@ -27,7 +27,7 @@ sample_logs = [
         "logLevel": "INFO",
         "applicationName": "BingoBangoBongo",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": datetime(2020, 5, 16),
+        "dateTime": str(datetime(2020, 5, 16)),
         "processName": "node.exe",
         "processId": "1337",
     },
@@ -37,7 +37,7 @@ sample_logs = [
         "logLevel": "ERROR",
         "applicationName": "Application 2",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": datetime(2020, 4, 20),
+        "dateTime": str(datetime(2020, 4, 20)),
         "processName": "java.exe",
         "processId": "9385",
     },
@@ -229,6 +229,31 @@ def test_log_extra_props(app, client, data):
         sorted_extra_props[key] = extra_props[key]
 
     assert json.dumps(sorted_extra_props) in last_line
+
+
+@pytest.mark.parametrize("data", sample_logs)
+def test_log_client_time(app, client, data):
+    # Arrange
+    client_time = data["dateTime"]
+
+    # Act
+    response = client.post(
+        "/logger/log",
+        content_type="application/json",
+        json=data,
+        headers={"x-access-token": data["authToken"]},
+    )
+
+    # Assert
+    assert response.status_code == 200
+
+    filename = app.config["LOGGER_FILENAME"]
+    assert filename in os.listdir(app.config["LOG_FOLDER"])
+
+    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
+        last_line = f.readlines()[-1]
+
+    assert client_time in last_line
 
 
 def test_log_write_rate_limit(client, app):

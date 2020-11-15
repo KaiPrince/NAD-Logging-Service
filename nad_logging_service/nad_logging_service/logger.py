@@ -64,6 +64,7 @@ def log():
             "processName",
             "processId",
             "logLevel",
+            "dateTime",
         ]
         if any(x not in json for x in required_params):
             return abort(400)
@@ -73,12 +74,14 @@ def log():
         process_name = json["processName"]
         process_id = json["processId"]
         log_level = json["logLevel"]
+        client_time = json["dateTime"]
 
         extra = {
             "application_name": application_name,
             "process_name": process_name,
             "process_id": process_id,
             "log_level": log_level,
+            "client_time": client_time,
         }
 
         # ..Add extra properties

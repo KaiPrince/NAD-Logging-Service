@@ -31,7 +31,7 @@ flask run
 - [ ] Adjust transports to allow multiple logger services running.
 - [x] Add master key to dotenv
 - [ ] Implement manual testing in client
-- [ ] Store two datetime (one client, one server)
+- [x] Store two datetime (one client, one server)
 - [ ] Standardize datetime to ISO
 - [x] rate limit routes (1 per second on all routes)
 - [ ] write exception tests
@@ -44,3 +44,4 @@ flask run
 - [ ] Separate loggers for API and app.
 - [ ] Remove db and registry module
 - [ ] Add catch all error route
+- [ ] Add validation
