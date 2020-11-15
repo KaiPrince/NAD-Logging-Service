@@ -113,25 +113,6 @@ export default function () {
   const [testsRunning, setTestsRunning] = useState(false);
   const [tests, setTests] = useState(sampleTests);
 
-  const performTest = async (testIndex, testData) => {
-    startTest(testIndex);
-
-    try {
-      const result = await fetch(testData.url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': '0xABC',
-        },
-        body: JSON.stringify(testData), // TODO Only send relevant test info
-      });
-
-      completeTest(testIndex, result.status, result);
-    } catch (exception) {
-      completeTest(testIndex, 'ERR', exception);
-    }
-  };
-
   const renderTest = (test) => {
     const [isOpen,setIsOpen] = useState(false);
     const {
@@ -228,7 +209,26 @@ export default function () {
     );
   };
 
-  const completeTest = (testIndex, result, resultObj) => {
+  const performTest = async (testIndex, testData) => {
+    startTest(testIndex);
+
+    try {
+      const result = await fetch(testData.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': '0xABC',
+        },
+        body: JSON.stringify(testData), // TODO Only send relevant test info
+      });
+
+      submitTestResult(testIndex, result.status, result);
+    } catch (exception) {
+      submitTestResult(testIndex, 'ERR', exception);
+    }
+  };
+
+  const submitTestResult = (testIndex, result, resultObj) => {
     setTests(
       tests.map((item, index) => {
         if (index === testIndex) {
