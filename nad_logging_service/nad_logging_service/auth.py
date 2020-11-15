@@ -19,7 +19,6 @@ def init(app: Flask):
     """ This is called during app creation to initialize the auth app. """
 
     if "TOKEN" not in app.config:
-        app.logger.exception("Auth Token is not set!")
         raise RuntimeError("Auth Token is not set!")
 
 
