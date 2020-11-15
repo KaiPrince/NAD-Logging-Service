@@ -18,43 +18,50 @@ const sampleTests = [
     result: undefined,
     resultObj: undefined,
     status: 'waiting', // DONE, WAITING, RUNNING
-    message: 'The app has crashed unexpectedly.',
-    logLevel: 'CRITICAL',
-    applicationName: 'BingoBangoBongo',
-    processName: 'node.exe',
-    processId: 6545,
-    dateTime: new Date(2020, 1, 1),
-    extra: { userId: 5, endpoint: '/users/5' },
-    authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
-    url
+    testData: {
+      message: 'The app has crashed unexpectedly.',
+      logLevel: 'CRITICAL',
+      applicationName: 'BingoBangoBongo',
+      processName: 'node.exe',
+      processId: 6545,
+      dateTime: new Date(2020, 1, 1),
+      extra: { userId: 5, endpoint: '/users/5' },
+      authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
+      url
+    }
   },
   {
     result: undefined,
     actualResult: undefined,
     status: 'waiting',
-    message: 'User authenticated successfully.',
-    logLevel: 'INFO',
-    applicationName: 'BingoBangoBongo',
-    processName: 'node.exe',
-    processId: 1337,
-    dateTime: new Date(2020, 5, 16),
-    extra: { userId: 5 },
-    authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
-    url
+    testData: {
+      message: 'User authenticated successfully.',
+      logLevel: 'INFO',
+      applicationName: 'BingoBangoBongo',
+      processName: 'node.exe',
+      processId: 1337,
+      dateTime: new Date(2020, 5, 16),
+      extra: { userId: 5 },
+      authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
+      url
+    }
+
   },
   {
     result: undefined,
     actualResult: undefined,
     status: 'waiting',
-    message: 'User could not be found.',
-    logLevel: 'ERROR',
-    applicationName: 'Application 2',
-    processName: 'java.exe',
-    processId: 9385,
-    dateTime: new Date(2020, 4, 20),
-    extra: { userId: 5, endpoint: '/users/5' },
-    authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
-    url
+    testData: {
+      message: 'User could not be found.',
+      logLevel: 'ERROR',
+      applicationName: 'Application 2',
+      processName: 'java.exe',
+      processId: 9385,
+      dateTime: new Date(2020, 4, 20),
+      extra: { userId: 5, endpoint: '/users/5' },
+      authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
+      url
+    }
   },
 ];
 
@@ -103,35 +110,39 @@ const appTheme = (theme) => ({
 });
 
 export default function () {
-  const [testRunning, setTestRunning] = useState(false);
+  const [testsRunning, setTestsRunning] = useState(false);
   const [tests, setTests] = useState(sampleTests);
 
-  const performTest = async (params) => {
-    startTest(params.index);
+  const performTest = async (testIndex, testData) => {
+    startTest(testIndex);
 
     try {
-      const result = await fetch(params.url, {
+      const result = await fetch(testData.url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-access-token': '0xABC',
         },
-        body: JSON.stringify(params), // TODO Only send relevant test info
+        body: JSON.stringify(testData), // TODO Only send relevant test info
       });
 
-      completeTest(params.index, result.status, result);
+      completeTest(testIndex, result.status, result);
     } catch (exception) {
-      completeTest(params.index, 'ERR', exception);
+      completeTest(testIndex, 'ERR', exception);
     }
   };
 
   const renderTest = (test) => {
     const [isOpen,setIsOpen] = useState(false);
     const {
+      index,
       status,
       result,
       resultObj,
-      index,
+      testData
+    } = test;
+
+    const {
       message,
       logLevel,
       applicationName,
@@ -141,19 +152,19 @@ export default function () {
       dateTime,
       url,
       extra
-    } = test;
+    } = testData;
 
     const renderStatus = () => {
       switch (status) {
         case 'done':
           return result === 200 ? <><DoneIcon /> [{result}]</> : <><ClearIcon /> [{result}]</>;
         case 'waiting':
-          if (testRunning) {
+          if (testsRunning) {
             return 'Waiting to run...';
           }
           break;
         default:
-          if (testRunning) {
+          if (testsRunning) {
             return <CircularProgress size={'1em'} />;
           }
           return undefined;
@@ -254,11 +265,11 @@ export default function () {
 
   const performAllTests = async () => {
     await resetTests();
-    setTestRunning(true);
+    setTestsRunning(true);
     for (const index in tests) {
-      await performTest({...tests[index], index: parseInt(index)});
+      await performTest(parseInt(index), { ...tests[index].testData });
     }
-    setTestRunning(false);
+    setTestsRunning(false);
   };
 
   return (
@@ -273,7 +284,7 @@ export default function () {
               </Typography>
               <div style={{borderTop: '3px solid grey', marginTop: '1em', marginBottom: '1em'}}></div>
               <Button
-                disabled={testRunning}
+                disabled={testsRunning}
                 onClick={performAllTests}
               >
                 Go
