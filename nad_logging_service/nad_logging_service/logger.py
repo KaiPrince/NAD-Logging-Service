@@ -5,7 +5,6 @@ import json as _json
 import logging
 import os
 import time
-import json
 from datetime import datetime
 from functools import wraps
 from logging.config import dictConfig
@@ -56,7 +55,7 @@ class LogRecord:
         if isinstance(value, dict):
             return
 
-        json.loads(value)
+        _json.loads(value)
 
     @classmethod
     def from_json(cls, json):
