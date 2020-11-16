@@ -5,6 +5,7 @@ import json as _json
 import logging
 import os
 import time
+import json
 from datetime import datetime
 from functools import wraps
 from logging.config import dictConfig
@@ -31,7 +32,7 @@ class LogRecord:
     log_level: str = attrib()
 
     @log_level.validator
-    def __check_log_level(self, attribute, value):
+    def _validate_log_level(self, attribute, value):
         if value not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
             # TODO use validate method instead of throwing error?
             raise ValueError("Invalid log level: " + value)
@@ -45,10 +46,17 @@ class LogRecord:
     client_time: str = attrib()
 
     @client_time.validator
-    def __check_client_time(self, attribute, value):
+    def _validate_client_time(self, attribute, value):
         isoparse(value)
 
     extra: dict = attrib(factory=dict)
+
+    @extra.validator
+    def _validate_extra(self, attribute, value):
+        if isinstance(value, dict):
+            return
+
+        json.loads(value)
 
     @classmethod
     def from_json(cls, json):
