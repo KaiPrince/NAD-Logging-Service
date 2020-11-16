@@ -1,3 +1,15 @@
+/*
+* File          : App.js
+* Project       : NAD Logging Service
+* Programmer    : Philip Arff
+* First Version : 15/11/20
+* Last Modified :
+* Description   : This contains the pure front end code for both completing a test suite
+*                 or a single request
+*
+* Credit        :
+*/
+
 import React, { useEffect, useState } from 'react';
 
 import { ThemeProvider, createMuiTheme, Chip } from '@material-ui/core';
@@ -311,7 +323,7 @@ export default function () {
     const [processName, handleProcessName] = useState('node.exe');
     const [processId, handleProcessId] = useState('6545');
     const [dateTime, handleDateTime] = useState(new Date());
-    const [extra, handleExtra] = useState('{ userId: 5, endpoint: \'/users/5\' }');
+    const [extra, handleExtra] = useState('{ "userId": 5, "endpoint": "/users/5" }');
     const [authToken, handleAuthToken] = useState(AUTH_TOKEN);
     const [url, handleUrl] = useState(URL);
     const [result, setResult] = useState();
