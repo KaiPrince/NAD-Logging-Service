@@ -14,8 +14,16 @@ import Card from '@material-ui/core/Card';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import {
+  DatePicker,
+  TimePicker,
+  DateTimePicker,
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
+import MomentUtils from '@date-io/moment';
 
-const url = 'http://localhost:5000/logger/log';
+const URL = 'http://localhost:5000/logger/log';
+const AUTH_TOKEN = '0xABC';
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -32,10 +40,10 @@ const sampleTests = [
       applicationName: 'BingoBangoBongo',
       processName: 'node.exe',
       processId: 6545,
-      dateTime: new Date(2020, 1, 1),
+      dateTime: new Date(2020, 1, 1).toISOString(),
       extra: { userId: 5, endpoint: '/users/5' },
-      authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
-      url
+      authToken: AUTH_TOKEN,
+      url: URL
     }
   },
   {
@@ -48,10 +56,10 @@ const sampleTests = [
       applicationName: 'BingoBangoBongo',
       processName: 'node.exe',
       processId: 1337,
-      dateTime: new Date(2020, 5, 16),
+      dateTime: new Date(2020, 5, 16).toISOString(),
       extra: { userId: 5 },
-      authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
-      url
+      authToken: AUTH_TOKEN,
+      url: URL
     }
 
   },
@@ -65,11 +73,95 @@ const sampleTests = [
       applicationName: 'Application 2',
       processName: 'java.exe',
       processId: 9385,
-      dateTime: new Date(2020, 4, 20),
+      dateTime: new Date(2020, 4, 20).toISOString(),
       extra: { userId: 5, endpoint: '/users/5' },
-      authToken: "eyy35t4m5vtk489k7vtk5ivk8ct74",
-      url
+      authToken: AUTH_TOKEN,
+      url: URL
     }
+  },
+  {
+    result: undefined,
+    actualResult: undefined,
+    status: 'waiting',
+    testData: 
+    {
+      "message": "This datetime is malformed.",
+      "logLevel": "CRITICAL",
+      "applicationName": "BingoBangoBongo",
+      "dateTime": '0-02-01T05:00:0',
+      "processName": "node.exe",
+      "processId": "6545",
+      authToken: AUTH_TOKEN,
+      url: URL
+    },
+  },
+  {
+    result: undefined,
+    actualResult: undefined,
+    status: 'waiting',
+    testData: 
+    {
+      "message": "This log level is invalid.",
+      "extra": JSON.stringify({"userId": 5, "endpoint": "/users/5"}),
+      "logLevel": "thisleveldoesnotexist",
+      "applicationName": "Application 2",
+      "dateTime": new Date(2020, 4, 20).toISOString(),
+      "processName": "java.exe",
+      "processId": "9385",
+      authToken: AUTH_TOKEN,
+      url: URL
+    },
+  },
+  {
+    result: undefined,
+    actualResult: undefined,
+    status: 'waiting',
+    testData: 
+    {
+      "message": "The extra data is malformed.",
+      "extra": '{"userId" 5 "endpo}',
+      "logLevel": "CRITICAL",
+      "applicationName": "Application 2",
+      "dateTime": new Date(2020, 4, 20).toISOString(),
+      "processName": "java.exe",
+      "processId": "9385",
+      authToken: AUTH_TOKEN,
+      url: URL
+    },
+  },
+  {
+    result: undefined,
+    actualResult: undefined,
+    status: 'waiting',
+    testData: 
+    {
+      "message": "The auth token is invalid.",
+      "extra": JSON.stringify({"userId": 5, "endpoint": "/users/5"}),
+      "logLevel": "CRITICAL",
+      "applicationName": "Application 2",
+      "authToken": "thisauthtokenisbad",
+      "dateTime": new Date(2020, 4, 20).toISOString(),
+      "processName": "java.exe",
+      "processId": "9385",
+      url: URL
+    },
+  },
+  {
+    result: undefined,
+    actualResult: undefined,
+    status: 'waiting',
+    testData: 
+    {
+      "message": "The processId is not an integer.",
+      "extra": JSON.stringify({"userId": 5, "endpoint": "/users/5"}),
+      "logLevel": "CRITICAL",
+      "applicationName": "Application 2",
+      "dateTime": new Date(2020, 4, 20).toISOString(),
+      "processName": "java.exe",
+      "processId": "thisisabadprocessid",
+      authToken: AUTH_TOKEN,
+      url: URL
+    },
   },
 ];
 
@@ -129,12 +221,20 @@ export default function () {
   const performTest = async (testIndex, testData) => {
     startTest(testIndex);
 
+    console.log({
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': testData.authToken,
+      },
+      body: JSON.stringify(testData),
+    });
     try {
       const result = await fetch(testData.url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-access-token': '0xABC',
+          'x-access-token': testData.authToken,
         },
         body: JSON.stringify(testData),
       });
@@ -195,10 +295,10 @@ export default function () {
 
   const getTestColor = (result) => {
     if (result) {
-      if (isNaN(result)) {
-        return '#fff0f0';
+      if (!isNaN(result) && result !== 500) {
+        return '#f8fff0'; // success
       } else {
-        return '#f8fff0';
+        return '#fff0f0'; // error
       }
     }
     return '#ffffff';
@@ -210,43 +310,64 @@ export default function () {
     const [applicationName, handleApplicationName] = useState('BingoBangoBongo');
     const [processName, handleProcessName] = useState('node.exe');
     const [processId, handleProcessId] = useState('6545');
-    const [dateTime, handleDateTime] = useState(new Date().toString());
+    const [dateTime, handleDateTime] = useState(new Date());
     const [extra, handleExtra] = useState('{ userId: 5, endpoint: \'/users/5\' }');
-    const [authToken, handleAuthToken] = useState('eyy35t4m5vtk489k7vtk5ivk8ct74');
-    const [url, handleUrl] = useState('http://localhost:5000/logger/log');
+    const [authToken, handleAuthToken] = useState(AUTH_TOKEN);
+    const [url, handleUrl] = useState(URL);
+    const [result, setResult] = useState();
 
     const makeCustomRequest = async () => {
+      const logRequest = {
+        message,
+        logLevel,
+        applicationName,
+        processName,
+        processId,
+        dateTime: dateTime.toISOString(),
+        extra
+      };
+      
+      console.log({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': authToken,
+        },
+        body: JSON.stringify(logRequest)
+      });
       const result = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-access-token': authToken,
         },
-        body: JSON.stringify({
-          message,
-          logLevel,
-          applicationName,
-          processName,
-          processId,
-          dateTime,
-          extra
-        })
+        body: JSON.stringify(logRequest)
       });
-  
-      console.log(result);
+
+      setResult({ status: result.status, statusText: result.statusText})
     };
 
     return (
       <Card style={{ backgroundColor: '#f5f5f5' }}>
         <Typography variant="h1">RUN CUSTOM REQUEST</Typography>
         <Divider />
-
-        <Button
-          onClick={makeCustomRequest}
-          variant="contained"
-        >
-          Go
-        </Button>
+        
+        <div style={{ display: 'flex',  }}>
+          <Button
+            onClick={makeCustomRequest}
+            variant="contained"
+          >
+            Go
+          </Button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%'}}>
+            <div style={{ alignSelf:'center' }}>
+              <Typography variant="subtitle1">
+                {result ? `${result.statusText} [${result.status}]` : undefined}
+              </Typography>
+            </div>
+          </div>
+       </div>
+        
 
         <FormControl style={{ width:'100%', margin: '1em 0' }} >
           <InputLabel id="select-message">message</InputLabel>
@@ -273,13 +394,15 @@ export default function () {
           <Input id="select-processId" value={processId} onChange={(e) => handleProcessId(e.target.value)} placeholder="processId" />
         </FormControl>
 
-        <FormControl style={{ width:'100%', margin: '1em 0' }} >
-          <InputLabel id="select-dateTime">dateTime</InputLabel>
-          <Input id="select-dateTime" value={dateTime} onChange={(e) => handleDateTime(e.target.value)} placeholder="dateTime" />
-        </FormControl>
+        <div style={{ margin: '1em 0' }}>
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <DatePicker style={{ width: '80%' }} value={dateTime} onChange={handleDateTime} />
+            <TimePicker style={{ width: '20%' }} value={dateTime} onChange={handleDateTime} />
+          </MuiPickersUtilsProvider>
+        </div>
 
         <FormControl style={{ width:'100%', margin: '1em 0' }} >
-          <InputLabel id="select-extra">processName</InputLabel>
+          <InputLabel id="select-extra">extra</InputLabel>
           <Input id="select-extra" value={extra} onChange={(e) => handleExtra(e.target.value)} placeholder="extra" />
         </FormControl>
 
@@ -377,7 +500,7 @@ export default function () {
     const renderStatus = () => {
       switch (status) {
         case 'done':
-          return result === 200 ? <><DoneIcon />&nbsp;[{result}]</> : <><ClearIcon />&nbsp;[{result}]</>;
+          return !isNaN(result) && result !== 500 ? <><DoneIcon />&nbsp;PASS&nbsp;[{result}]</> : <><ClearIcon />&nbsp;FAIL&nbsp;[{result}]</>;
         case 'waiting':
           if (testsRunning) {
             return 'Waiting to run...';
@@ -474,7 +597,7 @@ export default function () {
                           <Chip label="dateTime" />
                         </td>
                         <td>
-                          {dateTime.toString()}
+                          {dateTime}
                         </td>
                       </tr>
                       <tr>
@@ -549,11 +672,11 @@ export default function () {
       <ThemeProvider theme={baseTheme}>
         <CssBaseline />
         <ThemeProvider theme={appTheme}>
-          <Grid container>
-            <Grid item>
+          <Grid container style={{ alignItems: 'center' }}>
+            <Grid item style={{ minWidth:'90%' }}>
               <TestSuite />
             </Grid>
-            <Grid item>
+            <Grid item  style={{ minWidth:'90%' }}>
               <CustomRequest />
             </Grid>
           </Grid>
