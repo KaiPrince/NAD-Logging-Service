@@ -328,5 +328,7 @@ def test_logger_timezone_utc(client, app, data):
     with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
         last_line = f.readlines()[-1]
 
-        assert server_utc_time in last_line and server_local_time not in last_line
+        assert server_utc_time in last_line
+        if server_utc_time != server_local_time:
+            assert server_local_time not in last_line
         # assert client_utc_time in log_line and client_local_time not in log_line
