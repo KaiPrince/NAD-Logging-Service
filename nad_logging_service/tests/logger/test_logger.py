@@ -255,10 +255,10 @@ def test_log_client_time(app, client, data):
 
 
 def test_log_write_rate_limit(client, app):
-    """ Logger fails after 2 simultaneous requests. """
+    """ Logger fails after 10 simultaneous requests. """
 
     # Arrange
-    rate_limit = 1
+    rate_limit = 10
     data = sample_logs[0]
 
     # ..enable rate limiting in testing mode
