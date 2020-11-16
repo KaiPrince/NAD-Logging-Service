@@ -589,13 +589,17 @@ export default function () {
               Test {index + 1}
             </div>
             <div style={{display:'inline-block', float:'right'}}>
-              <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setIsOpen(false)}>
+              <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setIsOpen(false)} 
+                onKeyPress={(e) => {(e.key === "Enter" || e.key === " ") && setIsOpen(false)}}
+                tabIndex={1}
+                role="button">
                 &nbsp;
                 {isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
               </div>
             </div>
             <div style={{display:'inline-block', float:'right'}}>
-              <div style={{display: 'flex', alignItems: 'center' }}>
+              <div style={{display: 'flex', alignItems: 'center' }} 
+                aria-expanded={isOpen ? "true" : "false"}>
                 {renderStatus()}
               </div>
             </div>
