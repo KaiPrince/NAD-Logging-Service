@@ -50,12 +50,12 @@ class LogRecord:
 
     extra: dict = attrib(factory=dict)
 
-    @extra.validator
-    def _validate_extra(self, attribute, value):
-        if isinstance(value, dict):
-            return
+    # @extra.validator
+    # def _validate_extra(self, attribute, value):
+    #     if isinstance(value, dict):
+    #         return
 
-        _json.loads(value)
+    #     _json.loads(value)
 
     @classmethod
     def from_json(cls, json):
