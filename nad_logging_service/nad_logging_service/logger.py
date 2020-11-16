@@ -1,5 +1,11 @@
-# TODO FHC
-# This is the logging service.
+"""
+ * Project Name: NAD-Logging-Service
+ * File Name: logger.py
+ * Programmer: Kai Prince
+ * Date: Sun, Nov 15, 2020
+ * Description: This file contains the logging app.
+"""
+
 
 import json as _json
 import logging
@@ -17,8 +23,6 @@ from .auth import authenticate
 from .rate_limiter import limiter
 
 bp = Blueprint("logger", __name__, url_prefix="/logger")
-
-# limiter.limit("5 per minute")(bp)
 
 # ............. Model ............
 
@@ -99,6 +103,14 @@ Sample Log:
 """
 
 # ............. Flask ............
+
+"""
+ * Function Name: init
+ * Description: This function is used to initialize the logging service.
+ * Parameters:
+    Flask: app
+ * Returns: None
+"""
 
 
 def init(app: Flask):

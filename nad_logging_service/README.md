@@ -44,7 +44,7 @@ flask run
 - [x] verify datetime from client
 - [x] log when rate limit is hit
 - [x] send error code instead of crashing
-- [ ] send better error messages
+- [x] send better error messages
 
 - [x] CLEANUP: remove app registration route.
 - [x] Separate loggers for API and app.

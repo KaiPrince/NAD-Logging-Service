@@ -1,4 +1,11 @@
-# TODO File Header comment
+"""
+ * Project Name: NAD-Logging-Service
+ * File Name: conftest.py
+ * Programmer: Kai Prince
+ * Date: Sun, Nov 15, 2020
+ * Description: This file contains test setup.
+"""
+
 
 import os
 

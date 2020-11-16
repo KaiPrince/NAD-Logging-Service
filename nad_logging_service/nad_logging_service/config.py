@@ -1,9 +1,21 @@
-# TODO File Header comment
+"""
+ * Project Name: NAD-Logging-Service
+ * File Name: config.py
+ * Programmer: Kai Prince
+ * Date: Sun, Nov 15, 2020
+ * Description: This file contains configuration classes.
+"""
+
 # Config file for the project.
 
 import os
 
 from flask import Flask
+
+"""
+ * Class Name: Config
+ * Purpose: This purpose of this class is to contain config values.
+"""
 
 
 class Config(object):
@@ -19,6 +31,7 @@ class Config(object):
 
         self.LOG_FOLDER = os.path.join(app.instance_path, "logs")
         self.TOKEN = os.getenv("TOKEN")
+        self.SECRET_KEY = os.getenv("SECRET_KEY")
 
         if overwrite_config is not None:
             self.from_dict(overwrite_config)
@@ -46,6 +59,19 @@ class Config(object):
             if key.isupper():
                 value = obj[key]
                 setattr(self, key, value)
+
+
+"""
+ * Function Name: _logger_config
+ * Description: This function is used to generate a logging config.
+ * Parameters: All from config.
+    str: log_folder
+    str: logger_name
+    str: log_folder
+    str: log_folder
+ * Returns:
+    dict: a loging config.
+"""
 
 
 def _logger_config(
