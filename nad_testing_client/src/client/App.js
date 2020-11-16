@@ -673,10 +673,10 @@ export default function () {
         <CssBaseline />
         <ThemeProvider theme={appTheme}>
           <Grid container style={{ alignItems: 'center' }}>
-            <Grid item style={{ minWidth:'90%' }}>
+            <Grid item style={{ width:'90%' }}>
               <TestSuite />
             </Grid>
-            <Grid item  style={{ minWidth:'90%' }}>
+            <Grid item style={{ width:'90%' }}>
               <CustomRequest />
             </Grid>
           </Grid>
