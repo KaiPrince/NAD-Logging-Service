@@ -7,46 +7,42 @@
 """
 
 import os
+
+from dotenv import find_dotenv, load_dotenv
 from flask import Flask
 from flask_cors import CORS
-from . import logger, config, registry, auth, db
+
+from . import auth, config, logger
+from .rate_limiter import limiter
+
+load_dotenv(find_dotenv(), verbose=True)
 
 
 def create_app(test_config=None):
+
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY="dev",
-        DATABASE=os.path.join(app.instance_path, "web_server.sqlite"),
-    )
+    app = Flask(__name__)
 
     # CORS policy
     # TODO: specify allowed origins
     CORS(app)  # TEMP allow all.
 
     # load config
-    config_obj = config.Config(app)
+    config_obj = config.Config(app, test_config)
     app.config.from_object(config_obj)
-
-    if test_config is not None:
-        # merge the test config if passed in
-        app.config.from_mapping(test_config)
 
     # make sure instance folder exists.
     if not os.path.exists(app.instance_path):
         os.mkdir(app.instance_path)
 
-    # register routes
-    app.register_blueprint(logger.bp)
-    app.register_blueprint(registry.bp)
-    app.register_blueprint(auth.bp)
-
     # initialize apps
     logger.init(app)
-    registry.init(app)
     auth.init(app)
-    db.init(app)
+    limiter.init_app(app)
 
-    app.add_url_rule("/", "/logger", logger.index)
+    # register routes
+    app.register_blueprint(logger.bp)
+    app.register_blueprint(auth.bp)
+    app.add_url_rule("/", "index", logger.index)
 
     return app

@@ -1,6 +1,10 @@
 Flask
 black
 flake8
+isort
 pytest
 pytest-mock
 flask-cors
+flask-limiter
+python-dotenv
+python-dateutil

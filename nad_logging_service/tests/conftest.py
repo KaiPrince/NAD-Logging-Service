@@ -1,7 +1,16 @@
-# TODO File Header comment
+"""
+ * Project Name: NAD-Logging-Service
+ * File Name: conftest.py
+ * Programmer: Kai Prince
+ * Date: Sun, Nov 15, 2020
+ * Description: This file contains test setup.
+"""
+
 
 import os
+
 import pytest
+
 from nad_logging_service import create_app
 from nad_logging_service.utils import copyfile
 
@@ -19,7 +28,15 @@ def app(tmp_path):
             dest_file = temp_logs_folder / f
             copyfile(src, dest_file)
 
-    app = create_app({"TESTING": True, "LOG_FOLDER": temp_logs_folder})
+    TEST_CONFIG = {
+        "TESTING": True,
+        "LOG_FOLDER": temp_logs_folder,
+        "TOKEN": "eyy35t4m5vtk489k7vtk5ivk8ct74",
+        # TODO enable rate limiting only on certain tests
+        # "RATELIMIT_ENABLED": False,
+    }
+
+    app = create_app(TEST_CONFIG)
 
     yield app
 

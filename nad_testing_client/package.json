@@ -1,7 +1,7 @@
 {
-  "name": "simple-react-full-stack",
+  "name": "nad_testing_client",
   "version": "1.0.0",
-  "description": "Boilerplate to build a full stack web application using React, Node.js, Express and Webpack.",
+  "description": "Front end for testing the nad_logging_service",
   "main": "src/server/index.js",
   "scripts": {
     "build": "webpack --mode production",
@@ -10,14 +10,18 @@
     "server": "nodemon src/server/index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
-  "author": "Sandeep Raveesh",
+  "author": "Philip Arff",
   "license": "ISC",
   "dependencies": {
+    "@date-io/moment": "^1.3.13",
     "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/pickers": "^3.2.10",
     "babel-polyfill": "^6.26.0",
     "express": "^4.16.3",
     "lodash": "^4.17.20",
     "lodash-humps": "^3.1.5",
+    "moment": "^2.29.1",
     "react": "^16.5.2",
     "react-dom": "^16.5.2"
   },
@@ -33,8 +37,10 @@
     "css-loader": "^2.0.0",
     "eslint": "^5.0.0",
     "eslint-config-airbnb": "^17.0.0",
+    "eslint-config-prettier": "^6.13.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.7.0",
     "file-loader": "^3.0.0",
     "html-webpack-plugin": "^3.2.0",
