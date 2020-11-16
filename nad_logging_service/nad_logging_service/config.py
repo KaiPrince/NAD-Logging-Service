@@ -12,7 +12,7 @@ class Config(object):
 
     LOCAL_LOG_FILENAME = "local.log"
 
-    RATELIMIT_DEFAULT = "1 per second"
+    RATELIMIT_DEFAULT = "10 per second"
     MAX_CONTENT_LENGTH = 100 * 1024  # 100kb
 
     def __init__(self, app: Flask, overwrite_config: dict = None):
