@@ -230,17 +230,16 @@ export default function () {
   const [testsRunning, setTestsRunning] = useState(false);
   const [tests, setTests] = useState(sampleTests);
 
+
+  /*
+  * Name          : performTest
+  * Description   : This function performs a test and updates the test array
+  * Parameters    : testIndex: index of test, testData: actual test data
+  * Returns       : N/A
+  */
   const performTest = async (testIndex, testData) => {
     startTest(testIndex);
 
-    console.log({
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-access-token': testData.authToken,
-      },
-      body: JSON.stringify(testData),
-    });
     try {
       const result = await fetch(testData.url, {
         method: 'POST',
@@ -257,6 +256,12 @@ export default function () {
     }
   };
 
+  /*
+  * Name          : submitTestResult
+  * Description   : Submits the results to the proper test
+  * Parameters    : testIndex: index of test, result: test result, resultObj: JS respose object
+  * Returns       : N/A
+  */
   const submitTestResult = (testIndex, result, resultObj) => {
     setTests(
       tests.map((item, index) => {
@@ -270,6 +275,12 @@ export default function () {
     );
   };
 
+  /*
+  * Name          : resetTests
+  * Description   : Resets all of the tests to default values
+  * Parameters    : N/A
+  * Returns       : N/A
+  */
   const resetTests = async () => {
     setTests(
       tests.map((item) => {
@@ -280,6 +291,12 @@ export default function () {
     );
   };
 
+  /*
+  * Name          : startTest
+  * Description   : Finds the correct test and switches the running flag on
+  * Parameters    : testIndex: index of test
+  * Returns       : N/A
+  */
   const startTest = (testIndex) => {
     setTests(
       tests.map((item, index) => {
@@ -292,6 +309,12 @@ export default function () {
     );
   };
 
+  /*
+  * Name          : performAllTests
+  * Description   : Loops through all tests and runs them
+  * Parameters    : N/A
+  * Returns       : N/A
+  */
   const performAllTests = async () => {
     await resetTests();
     setTestsRunning(true);
@@ -301,10 +324,22 @@ export default function () {
     setTestsRunning(false);
   };
 
+  /*
+  * Name          : testsCompleted
+  * Description   : Counts all tests that have been completed
+  * Parameters    : tests: The array of tests
+  * Returns       : Int: number of tests completed
+  */
   const testsCompleted = (tests) => tests.reduce((acc, cur) => {
     return cur.status === 'done' ? acc + 1 : acc;
   }, 0);
 
+  /*
+  * Name          : getTestColor
+  * Description   : Given the result value from a test, return the proper color
+  * Parameters    : result: The result from the test (200, 300, etc or ERR)
+  * Returns       : Returns a string which is a color in the format #ffffff
+  */
   const getTestColor = (result) => {
     if (result) {
       if (!isNaN(result) && result !== 500) {
@@ -316,6 +351,13 @@ export default function () {
     return '#ffffff';
   }
 
+  /*
+  * Name          : CustomRequest
+  * Description   : CustomRequest is the component that is in charge of printing creating
+  *               : and sending custom tests
+  * Parameters    : N/A
+  * Returns       : N/A
+  */
   const CustomRequest = () => {
     const [message, handleMessage] = useState('The app has crashed unexpectedly.');
     const [logLevel, handleLogLevel] = useState('CRITICAL');
@@ -329,6 +371,7 @@ export default function () {
     const [result, setResult] = useState();
 
     const makeCustomRequest = async () => {
+      let result;
       const logRequest = {
         message,
         logLevel,
@@ -338,25 +381,19 @@ export default function () {
         dateTime: dateTime.toISOString(),
         extra
       };
-      
-      console.log({
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': authToken,
-        },
-        body: JSON.stringify(logRequest)
-      });
-      const result = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': authToken,
-        },
-        body: JSON.stringify(logRequest)
-      });
-
-      setResult({ status: result.status, statusText: result.statusText})
+      try {
+        result = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-access-token': authToken,
+          },
+          body: JSON.stringify(logRequest)
+        });
+        setResult({ status: result.status, statusText: result.statusText})
+      } catch (e) {
+        setResult({ status: 'ERR', statusText: e.toString()})
+      }
     };
 
     return (
@@ -431,6 +468,13 @@ export default function () {
     );
   }
 
+  /*
+  * Name          : TestSuite
+  * Description   : TestSuite is the component that takes the array of tests and allows
+  *               : the user to initiate performing all tests available.
+  * Parameters    : N/A
+  * Returns       : N/A
+  */
   const TestSuite = () => {
     const requestNumber = testsCompleted(tests);
 
@@ -481,6 +525,14 @@ export default function () {
     );
   }
 
+    /*
+  * Name          : Test
+  * Description   : Test is the component that represents a single test, including
+  *               : the test data and also the metadata that tells the UI the progress of
+  *               : the test such as status and return value
+  * Parameters    : N/A
+  * Returns       : N/A
+  */
   const Test = ({ index, status, result, resultObj, testData }) => {
     const [panel, setPanel] = useState(0);
     const [isOpen,setIsOpen] = useState(false);
