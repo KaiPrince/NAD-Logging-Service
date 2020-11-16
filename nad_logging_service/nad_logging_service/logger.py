@@ -50,12 +50,12 @@ class LogRecord:
 
     extra: dict = attrib(factory=dict)
 
-    # @extra.validator
-    # def _validate_extra(self, attribute, value):
-    #     if isinstance(value, dict):
-    #         return
+    @extra.validator
+    def _validate_extra(self, attribute, value):
+        if isinstance(value, dict):
+            return
 
-    #     _json.loads(value)
+        _json.loads(value)
 
     @classmethod
     def from_json(cls, json):
@@ -196,7 +196,7 @@ def log():
             try:
                 LogRecord.from_json(json)
             except Exception as e:
-                error_message = "invalid log record: " + e
+                error_message = "invalid log record: " + str(e)
                 current_app.logger.info(error_message)
                 return make_response({"message": error_message}, 400)
 
