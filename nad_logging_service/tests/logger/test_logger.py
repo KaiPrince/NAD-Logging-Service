@@ -9,6 +9,7 @@
 import os
 import pytest
 from datetime import datetime
+from dateutil.parser import isoparse
 import json
 
 sample_logs = [
@@ -17,7 +18,7 @@ sample_logs = [
         "logLevel": "CRITICAL",
         "applicationName": "BingoBangoBongo",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 1, 1)),
+        "dateTime": datetime(2020, 1, 1, 8, 54, 30).isoformat(),
         "processName": "node.exe",
         "processId": "6545",
     },
@@ -27,7 +28,7 @@ sample_logs = [
         "logLevel": "INFO",
         "applicationName": "BingoBangoBongo",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 5, 16)),
+        "dateTime": "2011-10-05T14:48:00.000Z",
         "processName": "node.exe",
         "processId": "1337",
     },
@@ -37,7 +38,7 @@ sample_logs = [
         "logLevel": "ERROR",
         "applicationName": "Application 2",
         "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 4, 20)),
+        "dateTime": "2020-11-15T23:55:51.929Z",
         "processName": "java.exe",
         "processId": "9385",
     },
@@ -229,7 +230,8 @@ def test_log_extra_props(app, client, data):
 @pytest.mark.parametrize("data", sample_logs)
 def test_log_client_time(app, client, data):
     # Arrange
-    client_time = data["dateTime"]
+    client_time = isoparse(data["dateTime"])
+    formatted_client_time = client_time.strftime("%Y-%m-%d %H:%M:%S")
 
     # Act
     response = client.post(
@@ -248,7 +250,7 @@ def test_log_client_time(app, client, data):
     with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
         last_line = f.readlines()[-1]
 
-    assert client_time in last_line
+    assert formatted_client_time in last_line
 
 
 def test_log_write_rate_limit(client, app):
@@ -283,6 +285,16 @@ def test_log_write_rate_limit(client, app):
 
     # Assert
     assert response.status_code == 429
+
+    filename = app.config["LOCAL_LOG_FILENAME"]
+    assert filename in os.listdir(app.config["LOG_FOLDER"])
+
+    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
+        last_line = f.readlines()[-1]
+
+    assert "flask-limiter" in last_line
+    assert "ratelimit" in last_line
+    assert "exceeded" in last_line
 
 
 @pytest.mark.parametrize("data", sample_logs)

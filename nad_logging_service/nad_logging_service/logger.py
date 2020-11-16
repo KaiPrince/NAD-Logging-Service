@@ -8,7 +8,8 @@ import time
 import json as _json
 from functools import wraps
 from flask import Blueprint, request, Flask, current_app, abort, make_response
-from dataclasses import dataclass
+from datetime import datetime
+from dateutil.parser import parse, isoparse
 from attr import attrs, attrib, validators
 from .auth import authenticate
 from .rate_limiter import limiter
@@ -20,7 +21,7 @@ bp = Blueprint("logger", __name__, url_prefix="/logger")
 # ............. Model ............
 
 
-@attrs
+@attrs(frozen=True)
 class LogRecord:
 
     message: str = attrib()
@@ -40,6 +41,10 @@ class LogRecord:
     process_id: int = attrib(validator=validators.instance_of(int), converter=int)
 
     client_time: str = attrib()
+
+    @client_time.validator
+    def __check_client_time(self, attribute, value):
+        isoparse(value)
 
     extra: dict = attrib(factory=dict)
 
@@ -96,12 +101,20 @@ def init(app: Flask):
     # Use UTC time when logging.
     logging.Formatter.converter = time.gmtime
 
+    # Add local logger to rate limiter
+    for handler in get_local_logger().handlers:
+        limiter.logger.addHandler(handler)
+
 
 # ............. Functions ............
 
 
 def get_logger():
     return logging.getLogger(current_app.config["LOGGER_NAME"])
+
+
+def get_local_logger():
+    return logging.getLogger("werkzeug")
 
 
 def log_record_from_json(json):
@@ -112,8 +125,14 @@ def log_record_from_json(json):
     return log_record
 
 
-def valid_log_record(log_record):
-    return True
+def valid_log_record(json):
+    try:
+        LogRecord.from_json(json)
+
+        return True
+    except ValueError:
+
+        return False
 
 
 def write_to_log(log_record):
@@ -124,7 +143,8 @@ def write_to_log(log_record):
         "process_name": log_record.process_name,
         "process_id": log_record.process_id,
         "log_level": log_record.log_level,
-        "client_time": log_record.client_time,
+        # TODO move format string to config file or use the one in logger
+        "client_time": isoparse(log_record.client_time).strftime("%Y-%m-%d %H:%M:%S"),
     }
 
     # ..Add extra properties
@@ -161,11 +181,10 @@ def log():
         if any(x not in json for x in required_params):
             return abort(400)
 
-        log_record = log_record_from_json(json)
-
-        if not valid_log_record(log_record):
+        if not valid_log_record(json):
             return abort(400)  # TODO more specific error message
 
+        log_record = log_record_from_json(json)
         write_to_log(log_record)
 
         return "Success!"

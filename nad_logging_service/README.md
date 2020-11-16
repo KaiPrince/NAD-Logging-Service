@@ -34,15 +34,20 @@ flask run
 - [x] Store two datetime (one client, one server)
 - [x] Standardize datetime to ISO
 - [x] rate limit routes (1 per second on all routes)
-- [ ] write exception tests
-- [ ] malformed logs & error checking
+- [x] write exception tests
+- [x] malformed logs & error checking
 - [ ] stack tracing
 - [ ] json web tokens (optional)
 - [x] limit log request size
+- [ ] move config to json file
+- [ ] move client datetime format to config file.
+- [x] verify datetime from client
+- [x] log when rate limit is hit
+- [x] send error code instead of crashing
 
 - [x] CLEANUP: remove app registration route.
-- [ ] Separate loggers for API and app.
+- [x] Separate loggers for API and app.
 - [x] Remove db and registry module
 - [ ] Add catch all error route
-- [ ] Add validation
+- [x] Add validation
 - [ ] encrypt messages & data
