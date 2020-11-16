@@ -188,10 +188,14 @@ def log():
             "dateTime",
         ]
         if any(x not in json for x in required_params):
-            return abort(400)
+            error_message = "missing required params."
+            current_app.logger.info(error_message)
+            return make_response({"message": error_message}, 400)
 
         if not valid_log_record(json):
-            return abort(400)  # TODO more specific error message
+            error_message = "invalid log record."
+            current_app.logger.info(error_message)
+            return make_response({"message": error_message}, 400)
 
         log_record = log_record_from_json(json)
         write_to_log(log_record)
