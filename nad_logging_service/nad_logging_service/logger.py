@@ -193,9 +193,12 @@ def log():
             return make_response({"message": error_message}, 400)
 
         if not valid_log_record(json):
-            error_message = "invalid log record."
-            current_app.logger.info(error_message)
-            return make_response({"message": error_message}, 400)
+            try:
+                LogRecord.from_json(json)
+            except Exception as e:
+                error_message = "invalid log record: " + e
+                current_app.logger.info(error_message)
+                return make_response({"message": error_message}, 400)
 
         log_record = log_record_from_json(json)
         write_to_log(log_record)
