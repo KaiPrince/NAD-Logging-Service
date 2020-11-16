@@ -591,7 +591,7 @@ export default function () {
             <div style={{display:'inline-block', float:'right'}}>
               <div style={{display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setIsOpen(false)} 
                 onKeyPress={(e) => {(e.key === "Enter" || e.key === " ") && setIsOpen(false)}}
-                tabIndex={1}
+                tabIndex="0"
                 role="button">
                 &nbsp;
                 {isOpen ? <ArrowUpIcon /> : <ArrowDownIcon />}
