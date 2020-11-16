@@ -1,7 +1,9 @@
 # TODO File Header comment
 
 import os
+
 import pytest
+
 from nad_logging_service import create_app
 from nad_logging_service.utils import copyfile
 

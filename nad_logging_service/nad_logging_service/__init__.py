@@ -7,11 +7,13 @@
 """
 
 import os
+
+from dotenv import find_dotenv, load_dotenv
 from flask import Flask
 from flask_cors import CORS
-from dotenv import load_dotenv, find_dotenv
+
+from . import auth, config, logger
 from .rate_limiter import limiter
-from . import logger, config, auth
 
 load_dotenv(find_dotenv(), verbose=True)
 

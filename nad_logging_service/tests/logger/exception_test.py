@@ -7,10 +7,11 @@
 """
 
 
-import os
-import pytest
-from datetime import datetime
 import json
+import os
+from datetime import datetime
+
+import pytest
 
 sample_logs = [
     {

@@ -2,6 +2,7 @@
 # Config file for the project.
 
 import os
+
 from flask import Flask
 
 

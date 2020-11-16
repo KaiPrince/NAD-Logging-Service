@@ -6,11 +6,12 @@
  * Description: This file contains tests for the logger app.
 """
 
-import os
-import pytest
-from datetime import datetime
-from dateutil.parser import isoparse
 import json
+import os
+from datetime import datetime
+
+import pytest
+from dateutil.parser import isoparse
 
 sample_logs = [
     {
