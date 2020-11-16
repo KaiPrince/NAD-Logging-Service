@@ -33,7 +33,6 @@ class LogRecord:
     @log_level.validator
     def _validate_log_level(self, attribute, value):
         if value not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-            # TODO use validate method instead of throwing error?
             raise ValueError("Invalid log level: " + value)
 
     application_name: str = attrib()
@@ -46,7 +45,10 @@ class LogRecord:
 
     @client_time.validator
     def _validate_client_time(self, attribute, value):
-        isoparse(value)
+        try:
+            isoparse(value)
+        except Exception:
+            raise ValueError("Improper date format " + value)
 
     extra: dict = attrib(factory=dict)
 
@@ -55,7 +57,10 @@ class LogRecord:
         if isinstance(value, dict):
             return
 
-        _json.loads(value)
+        try:
+            _json.loads(value)
+        except Exception as e:
+            raise ValueError("Improper json format. " + str(e))
 
     @classmethod
     def from_json(cls, json):
