@@ -114,7 +114,7 @@ const sampleTests = [
     testData: 
     {
       "message": "This log level is invalid.",
-      "extra": JSON.stringify({"userId": 5, "endpoint": "/users/5"}),
+      "extra": JSON.stringify({userId: 5, endpoint: "/users/5"}),
       "logLevel": "thisleveldoesnotexist",
       "applicationName": "Application 2",
       "dateTime": new Date(2020, 4, 20).toISOString(),
@@ -148,7 +148,7 @@ const sampleTests = [
     testData: 
     {
       "message": "The auth token is invalid.",
-      "extra": JSON.stringify({"userId": 5, "endpoint": "/users/5"}),
+      "extra": JSON.stringify({userId: 5, endpoint: "/users/5"}),
       "logLevel": "CRITICAL",
       "applicationName": "Application 2",
       "authToken": "thisauthtokenisbad",
@@ -165,7 +165,7 @@ const sampleTests = [
     testData: 
     {
       "message": "The processId is not an integer.",
-      "extra": JSON.stringify({"userId": 5, "endpoint": "/users/5"}),
+      "extra": JSON.stringify({userId: 5, endpoint: "/users/5"}),
       "logLevel": "CRITICAL",
       "applicationName": "Application 2",
       "dateTime": new Date(2020, 4, 20).toISOString(),
