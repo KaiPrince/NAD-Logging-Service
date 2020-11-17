@@ -11,13 +11,11 @@ import json as _json
 import logging
 import os
 import time
-from datetime import datetime
-from functools import wraps
 from logging.config import dictConfig
 
 from attr import attrib, attrs, validators
-from dateutil.parser import isoparse, parse
-from flask import Blueprint, Flask, abort, current_app, make_response, request
+from dateutil.parser import isoparse
+from flask import Blueprint, Flask, current_app, make_response, request
 
 from .auth import authenticate
 from .rate_limiter import limiter
@@ -128,8 +126,14 @@ def init(app: Flask):
     logging.Formatter.converter = time.gmtime
 
     # Add local logger to rate limiter
-    for handler in get_local_logger().handlers:
-        limiter.logger.addHandler(handler)
+    with app.app_context():
+        local_logger = get_local_logger()
+        for handler in local_logger.handlers:
+            limiter.logger.addHandler(handler)
+
+        # NOTE: for some reason, this is originally the string "False",
+        #   which is truthy. Without this line, the logger does not work.
+        limiter.logger.disabled = False
 
 
 # ............. Functions ............
@@ -140,13 +144,12 @@ def get_logger():
 
 
 def get_local_logger():
-    return logging.getLogger("werkzeug")
+    return logging.getLogger(current_app.config["LOCAL_LOGGER_NAME"])
 
 
 def log_record_from_json(json):
 
     log_record = LogRecord.from_json(json)
-    print(log_record)
 
     return log_record
 
@@ -192,7 +195,12 @@ def index():
 @bp.route("/log", methods=["GET", "POST"])
 @authenticate
 def log():
-    """ This is a simple view that writes to a log file. """
+    """
+    * Function Name: log
+    * Description: This is a simple view that writes to a log file.
+    * Parameters: None
+    * Returns: None
+    """
     if request.method == "POST":
         json = request.json
 
