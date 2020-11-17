@@ -12,6 +12,11 @@ import os
 
 from flask import Flask
 
+"""
+ * Class Name: Config
+ * Purpose: This purpose of this class is to contain config values.
+"""
+
 
 class Config(object):
     """
@@ -22,7 +27,8 @@ class Config(object):
     def __init__(self, app: Flask, overwrite_config: dict = None):
         """
         * Function Name: __init__
-        * Description: This constructor function is used to initialize the config values.
+        * Description: This constructor function is used to initialize the config
+            values.
         * Parameters:
             Flask app: the flask application instance
             dict overwrite_config: overwrites the config values
