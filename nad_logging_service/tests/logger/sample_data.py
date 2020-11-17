@@ -8,7 +8,6 @@
 
 from datetime import datetime
 
-
 good_logs = [
     {
         "message": "The app has crashed unexpectedly.",

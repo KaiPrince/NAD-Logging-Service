@@ -7,6 +7,7 @@
 """
 
 import os
+
 from .sample_data import good_logs as sample_logs
 
 
