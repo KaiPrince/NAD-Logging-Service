@@ -13,37 +13,7 @@ from datetime import datetime
 import pytest
 from dateutil.parser import isoparse
 
-sample_logs = [
-    {
-        "message": "The app has crashed unexpectedly.",
-        "logLevel": "CRITICAL",
-        "applicationName": "BingoBangoBongo",
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": datetime(2020, 1, 1, 8, 54, 30).isoformat(),
-        "processName": "node.exe",
-        "processId": "6545",
-    },
-    {
-        "message": "User authenticated successfully.",
-        "extra": {"userId": 5},
-        "logLevel": "INFO",
-        "applicationName": "BingoBangoBongo",
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": "2011-10-05T14:48:00.000Z",
-        "processName": "node.exe",
-        "processId": "1337",
-    },
-    {
-        "message": "User could not be found.",
-        "extra": {"userId": 5, "endpoint": "/users/5"},
-        "logLevel": "ERROR",
-        "applicationName": "Application 2",
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": "2020-11-15T23:55:51.929Z",
-        "processName": "java.exe",
-        "processId": "9385",
-    },
-]
+from .sample_data import good_logs as sample_logs
 
 
 def test_index_ok(client):
@@ -55,23 +25,6 @@ def test_index_ok(client):
 
     # Assert
     assert response.status_code == 200
-
-
-def test_index_rate_limit(client, app):
-    """ Logger fails after 5 requests. """
-    # Arrange
-    # ..enable rate limiting in testing mode
-    # app.config["RATELIMIT_ENABLED"] = True
-
-    # Act
-    for _ in range(5):
-        response = client.get("/")
-        assert response.status_code == 200
-
-    response = client.get("/")
-
-    # Assert
-    assert response.status_code == 429
 
 
 @pytest.mark.parametrize("data", sample_logs)
@@ -252,50 +205,6 @@ def test_log_client_time(app, client, data):
         last_line = f.readlines()[-1]
 
     assert formatted_client_time in last_line
-
-
-def test_log_write_rate_limit(client, app):
-    """ Logger fails after 10 simultaneous requests. """
-
-    # Arrange
-    rate_limit = 10
-    data = sample_logs[0]
-
-    # ..enable rate limiting in testing mode
-    # app.config["RATELIMIT_ENABLED"] = True
-
-    # Act
-    for _ in range(rate_limit):
-        response = client.post(
-            "/logger/log",
-            content_type="application/json",
-            json=data,
-            headers={"x-access-token": data["authToken"]},
-        )
-
-        # Assert
-        assert response.status_code == 200
-
-    # Act
-    response = client.post(
-        "/logger/log",
-        content_type="application/json",
-        json=data,
-        headers={"x-access-token": data["authToken"]},
-    )
-
-    # Assert
-    assert response.status_code == 429
-
-    filename = app.config["LOCAL_LOG_FILENAME"]
-    assert filename in os.listdir(app.config["LOG_FOLDER"])
-
-    with open(os.path.join(app.config["LOG_FOLDER"], filename)) as f:
-        last_line = f.readlines()[-1]
-
-    assert "flask-limiter" in last_line
-    assert "ratelimit" in last_line
-    assert "exceeded" in last_line
 
 
 @pytest.mark.parametrize("data", sample_logs)

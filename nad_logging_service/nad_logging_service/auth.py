@@ -11,7 +11,7 @@
 import secrets
 from functools import wraps
 
-from flask import Blueprint, Flask, abort, current_app, make_response, request
+from flask import Blueprint, Flask, current_app, make_response, request
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
