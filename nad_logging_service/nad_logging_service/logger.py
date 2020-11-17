@@ -147,6 +147,11 @@ def get_local_logger():
     return logging.getLogger(current_app.config["LOCAL_LOGGER_NAME"])
 
 
+def get_time_format():
+    logger_config = current_app.config["LOGGER_CONFIG"]
+    return logger_config["formatters"]["logger"]["datefmt"]
+
+
 def log_record_from_json(json):
 
     log_record = LogRecord.from_json(json)
@@ -164,16 +169,17 @@ def valid_log_record(json):
         return False
 
 
-def write_to_log(log_record):
+def write_to_log(log_record, time_format):
     message = log_record.message
+
+    formatted_client_time = isoparse(log_record.client_time).strftime(time_format)
 
     extra = {
         "application_name": log_record.application_name,
         "process_name": log_record.process_name,
         "process_id": log_record.process_id,
         "log_level": log_record.log_level,
-        # TODO move format string to config file or use the one in logger
-        "client_time": isoparse(log_record.client_time).strftime("%Y-%m-%d %H:%M:%S"),
+        "client_time": formatted_client_time,
     }
 
     # ..Add extra properties
@@ -226,7 +232,11 @@ def log():
                 return make_response({"message": error_message}, 400)
 
         log_record = log_record_from_json(json)
-        write_to_log(log_record)
+
+        # CLEANUP: consider storing the format string in the log record instead
+        client_time_format = get_time_format()
+
+        write_to_log(log_record, client_time_format)
 
         return "Success!"
 

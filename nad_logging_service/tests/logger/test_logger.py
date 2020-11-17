@@ -185,7 +185,7 @@ def test_log_extra_props(app, client, data):
 def test_log_client_time(app, client, data):
     # Arrange
     client_time = isoparse(data["dateTime"])
-    formatted_client_time = client_time.strftime("%Y-%m-%d %H:%M:%S")
+    formatted_client_time = client_time.strftime("%Y-%m-%d %H:%M:%S %Z")
 
     # Act
     response = client.post(
