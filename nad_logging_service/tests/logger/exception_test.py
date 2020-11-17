@@ -7,73 +7,9 @@
 """
 
 
-import json
-import os
-from datetime import datetime
-
 import pytest
 
-sample_logs = [
-    {
-        "message": "This datetime is malformed.",
-        "logLevel": "CRITICAL",
-        "applicationName": "BingoBangoBongo",
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 1, 1))[5:],
-        "processName": "node.exe",
-        "processId": "6545",
-    },
-    {
-        "message": "This log entry is massive.",
-        "extra": {"userId": 5, "massive": "i" * 500},
-        "logLevel": "INFO",
-        "applicationName": "BingoBangoBongo" + "i" * 500,
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 5, 16)),
-        "processName": "node.exe" + "i" * 500,
-        "processId": "1337" + "i" * 500,
-    },
-    {
-        "message": "This log level is invalid.",
-        "extra": {"userId": 5, "endpoint": "/users/5"},
-        "logLevel": "thisleveldoesnotexist",
-        "applicationName": "Application 2",
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 4, 20)),
-        "processName": "java.exe",
-        "processId": "9385",
-    },
-    {
-        "message": "The extra data is malformed.",
-        "extra": '{"userId" 5 "endpo}',
-        "logLevel": "CRITICAL",
-        "applicationName": "Application 2",
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 4, 20)),
-        "processName": "java.exe",
-        "processId": "9385",
-    },
-    {
-        "message": "The auth token is invalid.",
-        "extra": {"userId": 5, "endpoint": "/users/5"},
-        "logLevel": "CRITICAL",
-        "applicationName": "Application 2",
-        "authToken": "thisauthtokenisbad",
-        "dateTime": str(datetime(2020, 4, 20)),
-        "processName": "java.exe",
-        "processId": "9385",
-    },
-    {
-        "message": "The processId is not an integer.",
-        "extra": {"userId": 5, "endpoint": "/users/5"},
-        "logLevel": "CRITICAL",
-        "applicationName": "Application 2",
-        "authToken": "eyy35t4m5vtk489k7vtk5ivk8ct74",
-        "dateTime": str(datetime(2020, 4, 20)),
-        "processName": "java.exe",
-        "processId": "thisisabadprocessid",
-    },
-]
+from .sample_data import exception_logs as sample_logs
 
 
 @pytest.mark.parametrize("data", sample_logs)

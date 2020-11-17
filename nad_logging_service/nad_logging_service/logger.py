@@ -11,13 +11,11 @@ import json as _json
 import logging
 import os
 import time
-from datetime import datetime
-from functools import wraps
 from logging.config import dictConfig
 
 from attr import attrib, attrs, validators
-from dateutil.parser import isoparse, parse
-from flask import Blueprint, Flask, abort, current_app, make_response, request
+from dateutil.parser import isoparse
+from flask import Blueprint, Flask, current_app, make_response, request
 
 from .auth import authenticate
 from .rate_limiter import limiter
@@ -128,8 +126,14 @@ def init(app: Flask):
     logging.Formatter.converter = time.gmtime
 
     # Add local logger to rate limiter
-    for handler in get_local_logger().handlers:
-        limiter.logger.addHandler(handler)
+    with app.app_context():
+        local_logger = get_local_logger()
+        for handler in local_logger.handlers:
+            limiter.logger.addHandler(handler)
+
+        # NOTE: for some reason, this is originally the string "False",
+        #   which is truthy. Without this line, the logger does not work.
+        limiter.logger.disabled = False
 
 
 # ............. Functions ............
@@ -140,13 +144,17 @@ def get_logger():
 
 
 def get_local_logger():
-    return logging.getLogger("werkzeug")
+    return logging.getLogger(current_app.config["LOCAL_LOGGER_NAME"])
+
+
+def get_time_format():
+    logger_config = current_app.config["LOGGER_CONFIG"]
+    return logger_config["formatters"]["logger"]["datefmt"]
 
 
 def log_record_from_json(json):
 
     log_record = LogRecord.from_json(json)
-    print(log_record)
 
     return log_record
 
@@ -161,16 +169,17 @@ def valid_log_record(json):
         return False
 
 
-def write_to_log(log_record):
+def write_to_log(log_record, time_format):
     message = log_record.message
+
+    formatted_client_time = isoparse(log_record.client_time).strftime(time_format)
 
     extra = {
         "application_name": log_record.application_name,
         "process_name": log_record.process_name,
         "process_id": log_record.process_id,
         "log_level": log_record.log_level,
-        # TODO move format string to config file or use the one in logger
-        "client_time": isoparse(log_record.client_time).strftime("%Y-%m-%d %H:%M:%S"),
+        "client_time": formatted_client_time,
     }
 
     # ..Add extra properties
@@ -192,7 +201,12 @@ def index():
 @bp.route("/log", methods=["GET", "POST"])
 @authenticate
 def log():
-    """ This is a simple view that writes to a log file. """
+    """
+    * Function Name: log
+    * Description: This is a simple view that writes to a log file.
+    * Parameters: None
+    * Returns: None
+    """
     if request.method == "POST":
         json = request.json
 
@@ -218,7 +232,11 @@ def log():
                 return make_response({"message": error_message}, 400)
 
         log_record = log_record_from_json(json)
-        write_to_log(log_record)
+
+        # CLEANUP: consider storing the format string in the log record instead
+        client_time_format = get_time_format()
+
+        write_to_log(log_record, client_time_format)
 
         return "Success!"
 
