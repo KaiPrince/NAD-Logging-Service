@@ -12,27 +12,37 @@ import os
 
 from flask import Flask
 
-"""
- * Class Name: Config
- * Purpose: This purpose of this class is to contain config values.
-"""
-
 
 class Config(object):
+    """
+    * Class Name: Config
+    * Purpose: This purpose of this class is to contain config values.
+    """
+
     def __init__(self, app: Flask, overwrite_config: dict = None):
+        """
+        * Function Name: __init__
+        * Description: This constructor function is used to initialize the config values.
+        * Parameters:
+            Flask app: the flask application instance
+            dict overwrite_config: overwrites the config values
+        * Returns: None
+        """
 
         app_config_file = os.path.join(app.config.root_path, "..", "app.cfg")
         app.config.from_pyfile(app_config_file)
 
         self.LOG_FOLDER = (
-            overwrite_config["LOG_FOLDER"]
-            if overwrite_config is not None and "LOG_FOLDER" in overwrite_config
-            else app.config["LOG_FOLDER"]
+            app.config["LOG_FOLDER"]
             if "LOG_FOLDER" in app.config
             else os.path.join(app.instance_path, "logs")
         )
         self.LOGGER_NAME = app.config["LOGGER_NAME"]
-        self.LOCAL_LOGGER_NAME = "local_logger"  # app.config["LOCAL_LOGGER_NAME"]
+        self.LOCAL_LOGGER_NAME = (
+            app.config["LOCAL_LOGGER_NAME"]
+            if "LOCAL_LOGGER_NAME" in app.config
+            else "local_logger"
+        )
         self.LOCAL_LOG_FILENAME = app.config["LOCAL_LOG_FILENAME"]
         self.LOGGER_FILENAME = app.config["LOGGER_FILENAME"]
 
@@ -74,19 +84,6 @@ class Config(object):
                 setattr(self, key, value)
 
 
-"""
- * Function Name: _logger_config
- * Description: This function is used to generate a logging config.
- * Parameters: All from config.
-    str: log_folder
-    str: logger_name
-    str: log_folder
-    str: log_folder
- * Returns:
-    dict: a logging config.
-"""
-
-
 def _logger_config(
     template: dict,
     log_folder: str,
@@ -95,6 +92,18 @@ def _logger_config(
     log_filename: str,
     local_logger_name: str,
 ):
+    """
+    * Function Name: _logger_config
+    * Description: This internal function consumes INPUT and produces OUTPUT.
+    * Parameters:
+        dict template: the logger config with placeholder values
+        str log_folder: the location of the log files
+        str logger_name: the name of the main logger
+        str local_log_filename: the name of the server's log file
+        str log_filename: the name of the client's log file
+        str local_logger_name: the name of the server logger
+    * Returns:
+       dict: A populated logger config."""
 
     config = template.copy()
     config["loggers"][logger_name] = config["loggers"].pop("[logger_name]")
